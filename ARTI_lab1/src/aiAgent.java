@@ -14,7 +14,7 @@ public class aiAgent implements Agent{
 	public String nextAction(Collection<String> percepts) {
 		// TODO Auto-generated method stub	
 		
-		String returnAction;
+		String returnAction = null;
 		
 		ArrayList<String> Obsticle = new ArrayList<String>();
 		String UnoObsticle = "";
@@ -32,19 +32,19 @@ public class aiAgent implements Agent{
 		}
 		else{
 			if (UnoObsticle == "SUCK"){
-				return actions[5];
+				returnAction = actions[5];
 			}
 			else if (UnoObsticle == "BUMP"){
 				//TODO;
 			}
 			else{
-				return actions[4];
+				returnAction = actions[4];
 			}
 		}
 		System.out.println("");
-
 		
 		
+		return returnAction;
 		//return actions[random.nextInt(actions.length)];
 		return null;
 	}
