@@ -7,7 +7,7 @@ public class aiAgent implements Agent{
 	private boolean lastTurn;
 	private static boolean RIGHT_TURN = true;
 	private static boolean LEFT_TURN = false;
-	private String lastMove;
+	private String lastAction;
 	private static String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
 	
 	@Override
@@ -43,9 +43,9 @@ public class aiAgent implements Agent{
 		}
 		System.out.println("");
 		
-		
+		lastAction = returnAction;
 		return returnAction;
 		//return actions[random.nextInt(actions.length)];
-		return null;
+		//return null;
 	}
 }
