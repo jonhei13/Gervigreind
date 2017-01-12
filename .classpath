@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="ARTI_lab1/src"/>
+	<classpathentry kind="lib" path="ARTI_lab1/gamecontroller-gui.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="ARTI_lab1/bin"/>
+</classpath>

@@ -1,4 +1,6 @@
-public class aiAgent{
+import java.util.Collection;
+
+public class aiAgent implements Agent{
 	
 	public void turnLeft(){
 		
@@ -19,5 +21,10 @@ public class aiAgent{
 	private boolean dirt(){
 		
 		return false;
+	}
+	@Override
+	public String nextAction(Collection<String> percepts) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
