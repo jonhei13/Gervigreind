@@ -9,8 +9,8 @@ public class aiAgent implements Agent{
 		String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
 		
 		
-		ArrayList<String> Obsticle;
-		String UnoObsticle;
+		ArrayList<String> Obsticle = new ArrayList<String>();
+		String UnoObsticle = "";
 		System.out.print("perceiving:");
 		for(String percept:percepts) {
 			System.out.print("'" + percept + "', ");
@@ -26,13 +26,19 @@ public class aiAgent implements Agent{
 			if (UnoObsticle == "SUCK"){
 				return actions[5];
 			}
+			else if (UnoObsticle == "BUMP"){
+				//TODO;
+			}
+			else{
+				return actions[4];
+				
+			}
 		}
 		System.out.println("");
 
 		
 		
 		//return actions[random.nextInt(actions.length)];
-	}
 		return null;
 	}
 }
