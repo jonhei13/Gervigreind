@@ -14,6 +14,7 @@ public class aiAgent implements Agent{
     private int y;
 	private static String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
     private static String Direction;
+    private boolean firstAction = true;
 
     aiAgent(){
         x = 0;
@@ -23,10 +24,14 @@ public class aiAgent implements Agent{
         RIGHT_TURN = false;
         LEFT_TURN = false;
         lastTurn = false;
+        
     }
 	@Override
 	public String nextAction(Collection<String> percepts) {
 		// TODO Auto-generated method stub	
+		
+		if(!firstAction && x == 0 && y == 0)
+			return actions[1];
 		
 		String returnAction = null;
 		
@@ -42,6 +47,10 @@ public class aiAgent implements Agent{
         System.out.println(Direction);
         if(turn180){
         	turn180 = false;
+        	if (Direction.equals("NORTH"))
+        		Direction = "EAST";
+        	else if(Direction.equals("SOUTH"))
+        		Direction = "WEST";
         	return actions[2];
         }
 		if (Obsticle.size() > 0) {
@@ -54,8 +63,14 @@ public class aiAgent implements Agent{
 	                FirstBump = true;
 	                if(lastTurn){
 	                	turn180 = true;
-	                	if(Direction.equals("EAST") || Direction.equals("WEST"))
+	                	if(Direction.equals("EAST")){
+	                		Direction = "SOUTH";
 	                		return actions[2];
+	                	}
+	                	else if (Direction.equals("WEST")){
+	                		Direction = "NORTH";
+	                		return actions[2];
+	                	}
 	                }
 	                if (Direction.equals("NORTH")) {
 	                    Direction = "EAST";
