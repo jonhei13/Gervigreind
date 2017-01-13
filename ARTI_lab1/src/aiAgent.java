@@ -16,6 +16,8 @@ public class aiAgent implements Agent{
     private boolean MovedForward;
 	private int x;
     private int y;
+    private int finalCordX;
+    private int finalCordY;
 	private static String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
     private static String Direction;
     private boolean firstAction = true;
@@ -23,6 +25,8 @@ public class aiAgent implements Agent{
     aiAgent(){
         x = 0;
         y = 0;
+        finalCordX = -1;
+        finalCordY = -1;
         Direction = "NORTH";
         FirstBump = false;
         RIGHT_TURN = false;
@@ -36,8 +40,8 @@ public class aiAgent implements Agent{
 	@Override
 	public String nextAction(Collection<String> percepts) {
 		// TODO Auto-generated method stub	
-		
-		if(!firstAction && x == 0 && y == 0)
+
+		if(finalCordX == 0 && finalCordY == 0)
 			return actions[1];
 		
 		String returnAction = null;
@@ -89,12 +93,6 @@ public class aiAgent implements Agent{
 	                		Direction = "WEST";
 	                		return actions[2];
 	                	}
-	                	/*
-	                	else if (Direction.equals("WEST")){
-	                		Direction = "NORTH";
-	                		return actions[2];
-	                	}
-	                	*/
 	                }
 	                if (Direction.equals("NORTH")) {
 	                    Direction = "EAST";
@@ -113,18 +111,21 @@ public class aiAgent implements Agent{
             if (MovedForward){
                 if (Direction.equals("NORTH")) {
                     y++;
+                    finalCordY = y;
                 }
                 else if (Direction.equals("SOUTH")) {
                     y--;
+                    finalCordY = y;
                 }
-                else if (Direction.equals("WEST"))
+                else if (Direction.equals("WEST")) {
                     x--;
+                    finalCordX = x;
+                }
                 else if (Direction.equals("EAST")) {
                     x++;
+                    finalCordX = x;
                 }
             }
-
-
             if (FirstBump) {
                 lastTurn = true;
                 FirstBump = false;
