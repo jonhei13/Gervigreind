@@ -53,7 +53,14 @@ public class aiAgent implements Agent{
 			else if (UnoObsticle.equals("BUMP")){
                 RIGHT_TURN = true;
                 FirstBump = true;
-                return actions[2];
+                if (Direction.equals("NORTH")){
+                    Direction = "EAST";
+                    return actions[2];
+                }
+                else if (Direction.equals("SOUTH")){
+                    Direction = "WEST";
+                    return actions[3];
+                }
 			}
 			else{
                 if (Direction.equals("NORTH")){
@@ -71,16 +78,18 @@ public class aiAgent implements Agent{
                 if (FirstBump) {
                     lastTurn = true;
                     FirstBump = false;
-                    Direction = "EAST";
                     return actions[4];
                 }
                 if (lastTurn){
-                    if (Direction.equals("NORTH"))
-                        Direction = "SOUTH";
-                    else
-                        Direction = "NORTH";
                     lastTurn = false;
-                    return actions[2];
+                    if (Direction.equals("EAST")){
+                        Direction = "SOUTH";
+                        return actions[2];
+                    }
+                    else if (Direction.equals("WEST")){
+                        Direction = "NORTH";
+                        return actions[3];
+                    }
                 }
 				return actions[4];
 			}
