@@ -37,63 +37,55 @@ public class aiAgent implements Agent{
 			Obsticle.add(percept);
 			UnoObsticle = percept;
 		}
-		
-		if (Obsticle.size() > 1){
-			for (int i = 0; i < Obsticle.size(); i++){
-				//TODO:
-
-			}
-		}
-		else{
-            System.out.println("");
-            System.out.println(Direction);
-			if (UnoObsticle.equals("SUCK")){
-				return actions[5];
-			}
-			else if (UnoObsticle.equals("BUMP")){
-                RIGHT_TURN = true;
-                FirstBump = true;
-                if (Direction.equals("NORTH")){
-                    Direction = "EAST";
-                    return actions[2];
-                }
-                else if (Direction.equals("SOUTH")){
-                    Direction = "WEST";
-                    return actions[3];
-                }
-			}
-			else{
-                if (Direction.equals("NORTH")){
-                    y++;
-                }
-                else if (Direction.equals("WEST")){
-                    x--;
-                }
-                else if (Direction.equals("EAST")){
-                    x++;
-                }
-                else if (Direction.equals("SOUTH")){
-                    y--;
-                }
-                if (FirstBump) {
-                    lastTurn = true;
-                    FirstBump = false;
-                    return actions[4];
-                }
-                if (lastTurn){
-                    lastTurn = false;
-                    if (Direction.equals("EAST")){
-                        Direction = "SOUTH";
+        System.out.println("");
+        System.out.println(Direction);
+		if (Obsticle.size() > 0) {
+            for (int i = 0; i < Obsticle.size(); i++) {
+                if (Obsticle.get(i).equals("DIRT")) {
+                    return actions[5];
+                } else if (Obsticle.get(i).equals("BUMP")) {
+                    RIGHT_TURN = true;
+                    FirstBump = true;
+                    if (Direction.equals("NORTH")) {
+                        Direction = "EAST";
                         return actions[2];
-                    }
-                    else if (Direction.equals("WEST")){
-                        Direction = "NORTH";
+                    } else if (Direction.equals("SOUTH")) {
+                        Direction = "WEST";
                         return actions[3];
                     }
                 }
-				return actions[4];
-			}
-		}
+            }
+        }
+        else {
+            if (Direction.equals("NORTH")) {
+                y++;
+            } else if (Direction.equals("WEST")) {
+                x--;
+            } else if (Direction.equals("EAST")) {
+                x++;
+            } else if (Direction.equals("SOUTH")) {
+                y--;
+            }
+            if (FirstBump) {
+                lastTurn = true;
+                FirstBump = false;
+                return actions[4];
+            }
+            if (lastTurn) {
+                lastTurn = false;
+                if (Direction.equals("EAST")) {
+                    Direction = "SOUTH";
+                    return actions[2];
+                } else if (Direction.equals("WEST")) {
+                    Direction = "NORTH";
+                    return actions[3];
+                }
+            }
+            return actions[4];
+
+        }
+
+
 		System.out.println("");
 
 		lastAction = returnAction;
