@@ -5,6 +5,7 @@ public class aiAgent implements Agent{
 	
 	ArrayList<String> preMoves = new ArrayList<String>();
 	private boolean lastTurn;
+	private boolean turn180 = false;
 	private static boolean RIGHT_TURN = true;
 	private static boolean LEFT_TURN = false;
 	private String lastAction;
@@ -39,33 +40,52 @@ public class aiAgent implements Agent{
 		}
         System.out.println("");
         System.out.println(Direction);
+        if(turn180){
+        	turn180 = false;
+        	return actions[2];
+        }
 		if (Obsticle.size() > 0) {
             for (int i = 0; i < Obsticle.size(); i++) {
                 if (Obsticle.get(i).equals("DIRT")) {
                     return actions[5];
-                } else if (Obsticle.get(i).equals("BUMP")) {
-                    RIGHT_TURN = true;
-                    FirstBump = true;
-                    if (Direction.equals("NORTH")) {
-                        Direction = "EAST";
-                        return actions[2];
-                    } else if (Direction.equals("SOUTH")) {
-                        Direction = "WEST";
-                        return actions[3];
-                    }
+                } 
+                else if (Obsticle.get(i).equals("BUMP")) {
+	                RIGHT_TURN = true;
+	                FirstBump = true;
+	                if(lastTurn){
+	                	turn180 = true;
+	                	if(Direction.equals("EAST") || Direction.equals("WEST"))
+	                		return actions[2];
+	                }
+	                if (Direction.equals("NORTH")) {
+	                    Direction = "EAST";
+	                    return actions[2];
+	                } 
+	                else if (Direction.equals("SOUTH")) {
+	                    Direction = "WEST";
+	                    return actions[3];
+	                }
                 }
             }
         }
         else {
             if (Direction.equals("NORTH")) {
                 y++;
-            } else if (Direction.equals("WEST")) {
+            }
+            
+            else if (Direction.equals("WEST")) {
                 x--;
-            } else if (Direction.equals("EAST")) {
+            }
+            
+            else if (Direction.equals("EAST")) {
                 x++;
-            } else if (Direction.equals("SOUTH")) {
+            }
+            
+            else if (Direction.equals("SOUTH")) {
                 y--;
             }
+            
+            System.out.println(x + ", " + y);
             if (FirstBump) {
                 lastTurn = true;
                 FirstBump = false;
