@@ -44,7 +44,6 @@ public class GamePlayer extends NanoHTTPD {
 	 */
 	protected void commandStop(String msg){
 		// msg="(STOP <MATCH ID> <JOINT MOVE>)
-		
 		// TODO:
 		//    - clean up the GamePlayer for the next match
 		//    - be happy if you have won, think about what went wrong if you have lost ;-)

@@ -7,12 +7,9 @@ public class aiAgent implements Agent{
 	private boolean lastTurn;
 	private boolean turn180 = false;
 	private static boolean RIGHT_TURN = true;
-	private static boolean LEFT_TURN = false;
-	private String lastAction;
     private boolean FirstBump;
     private boolean WestBump;
     private boolean WestBump2;
-    private boolean WestBump3;
     private boolean MovedForward;
 	private int x;
     private int y;
@@ -30,19 +27,18 @@ public class aiAgent implements Agent{
         Direction = "NORTH";
         FirstBump = false;
         RIGHT_TURN = false;
-        LEFT_TURN = false;
         lastTurn = false;
         WestBump = false;
         WestBump2 = false;
         MovedForward = false;
-        WestBump3 = false;
     }
 	@Override
 	public String nextAction(Collection<String> percepts) {
 		// TODO Auto-generated method stub	
 
-		if(finalCordX == 0 && finalCordY == 0)
-			return actions[1];
+		if(finalCordX == 0 && finalCordY == 0) {
+            return actions[1];
+        }
 		
 		String returnAction = null;
 		
@@ -69,7 +65,6 @@ public class aiAgent implements Agent{
                     MovedForward = false;
 	                if (Direction.equals("WEST") && !WestBump2){
                         WestBump = true;
-                        WestBump3 = true;
                         Direction = "NORTH";
                         return actions[2];
                     }
@@ -127,7 +122,10 @@ public class aiAgent implements Agent{
                 }
             }
             if (FirstBump) {
-                lastTurn = true;
+                if (WestBump)
+                    lastTurn = false;
+                else
+                    lastTurn = true;
                 FirstBump = false;
 
                 System.out.println(x + ", " + y);
@@ -151,6 +149,7 @@ public class aiAgent implements Agent{
             }
             System.out.println(x + ", " + y);
             MovedForward = true;
+            WestBump = false;
             return actions[4];
 
         }
@@ -158,7 +157,6 @@ public class aiAgent implements Agent{
 
 		System.out.println("");
 
-		lastAction = returnAction;
 		return returnAction;
 	}
 }
