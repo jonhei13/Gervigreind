@@ -12,9 +12,13 @@ public class State {
     public String toString() {
         return "State{position: " + position + ", orientation: " + orientation + ", on:" + turned_on + "}";
     }
+    public boolean equals(Object o){
+        State s = (State) o;
+        return s.position.equals(this.position) && s.orientation.equals(this.orientation);
+    }
     public int hashCode(){
-        int res = 17;
-        int result = 0;
+        int res = 31;
+        int result = position.x;
         result = res * result + position.x;
         result = res * result + position.y;
         return result;
