@@ -34,15 +34,13 @@ public class aiAgent implements Agent{
     }
 	@Override
 	public String nextAction(Collection<String> percepts) {
-		// TODO Auto-generated method stub	
-
 		if(finalCordX == 0 && finalCordY == 0) {
             return actions[1];
         }
 		
 		String returnAction = null;
 		
-		ArrayList<String> Obsticle = new ArrayList<>();
+		ArrayList<String> Obsticle = new ArrayList<String>();
 		System.out.print("perceiving:");
 		for(String percept:percepts) {
 			System.out.print("'" + percept + "', ");

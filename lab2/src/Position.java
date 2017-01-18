@@ -13,8 +13,8 @@ public class Position {
     }
 
     public boolean equals(Object o){
-
-        return x == o.hashCode() && y == o.hashCode();
+    	Position p = (Position)o;
+        return this.x == p.x && this.y == p.y;
     }
 }
 
