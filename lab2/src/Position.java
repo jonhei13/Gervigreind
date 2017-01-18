@@ -22,7 +22,8 @@ public class Position {
     	int hash = nums[(this.x+this.y) % 6];
     	int hash2 = nums[(this.x*this.y) % 6];
     	res = hash*this.x^this.y*hash2*hash*this.y^this.x*hash2;
-    	return res;
+    	return 1;
+
     }
 }
 

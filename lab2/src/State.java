@@ -42,6 +42,9 @@ public class State {
     	
     	if(this.turned_on)
     		hash = hash * 1299457;
+    	else{
+    		hash = hash * 15485849;
+		}
     	
     	hash = hash*this.position.x^this.position.y;
     	hash = hash*this.position.y^this.position.x;
