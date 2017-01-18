@@ -14,14 +14,14 @@ public class State {
     }
     public boolean equals(Object o){
         State s = (State) o;
-        return s.position.equals(this.position) && s.orientation.equals(this.orientation);
+        return s.position.equals(this.position) && s.orientation.equals(this.orientation) && s.orientation == this.orientation
+        		&& this.turned_on == s.turned_on;
     }
-    public int hashCode(){
-        int res = 31;
-        int result = position.x;
-        result = res * result + position.x;
-        result = res * result + position.y;
-        return result;
+    public int hashCode() {
+    	int hash = this.position.x*this.position.y % (this.position.x+this.position.y);
+    	hash = hash*77 + this.position.x;
+    	hash = hash*77 + this.position.y; 
+    	return hash;
     }
 
 }

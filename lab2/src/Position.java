@@ -16,12 +16,11 @@ public class Position {
     	Position p = (Position)o;
         return this.x == p.x && this.y == p.y;
     }
-    public int hashCode(){
-        int res = 31;
-        int result = x;
-        result = res * result + x;
-        result = res * result + y;
-        return result;
+    public int hashCode() {
+    	int hash = this.x*this.y % (this.x+this.y);
+    	hash = hash*77 + this.x;
+    	hash = hash*77 + this.y;
+    	return hash;
     }
 }
 
