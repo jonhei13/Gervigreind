@@ -12,4 +12,9 @@ public class Position {
         return "(" + x + ", " + y + ")";
     }
 
+    public boolean equals(Object o){
+
+        return x == o.hashCode() && y == o.hashCode();
+    }
 }
+

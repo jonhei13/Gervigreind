@@ -12,4 +12,12 @@ public class State {
     public String toString() {
         return "State{position: " + position + ", orientation: " + orientation + ", on:" + turned_on + "}";
     }
+    public int hashCode(){
+        int res = 17;
+        int result = 0;
+        result = res * result + position.x;
+        result = res * result + position.y;
+        return result;
+    }
+
 }
