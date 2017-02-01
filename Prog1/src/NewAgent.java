@@ -1,6 +1,8 @@
 package Prog1;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,7 +17,6 @@ public class NewAgent implements Agent
 	private int startX;
 	private int startY;
 	private int[][] map;
-	private Node root;
 	private ArrayList<Position> dirts = new ArrayList<Position>();
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
 	private ArrayList<State> visited = new ArrayList<State>();
@@ -95,6 +96,113 @@ public class NewAgent implements Agent
 		if(node.getParent().getMove() == move && node.getParent().getParent().getMove() == move)
 			return true;
 		return false;
+	}
+	public void insert(Node node, State state)
+	{
+		node.left = new Node(null, null, null, node, stateLeft(state), "TURN_LEFT");
+		node.center = new Node(null, null, null, node, stateGo(state), "GO");
+		node.right = new Node(null, null, null, node, stateRight(state), "TURN_RIGHT");
+	}
+	public State stateLeft(State state)
+	{
+		if(state.orientation.equals("NORTH"))
+		{
+			state.orientation = Orientation.WEST;
+			return state;
+		}
+		else if(state.orientation.equals("WEST"))
+		{
+			state.orientation = Orientation.SOUTH;
+			return state;
+		}
+		else if(state.orientation.equals("SOUTH"))
+		{
+			state.orientation = Orientation.EAST;
+			return state;
+		}
+		else
+		{
+			state.orientation = Orientation.NORTH;
+			return state;
+		}
+	}
+	public State stateGo(State state)
+	{
+		if(state.orientation.equals("NORTH"))
+		{
+			state.position.y = state.position.y-1;
+			return state;
+		}
+		else if(state.orientation.equals("WEST"))
+		{
+			state.position.y = state.position.x-1;
+			return state;
+		}
+		else if(state.orientation.equals("SOUTH"))
+		{
+			state.position.y = state.position.y+1;
+			return state;
+		}
+		else
+		{
+			state.position.y = state.position.x+1;
+			return state;
+		}
+	}
+	public State stateRight(State state)
+	{
+		if(state.orientation.equals("NORTH"))
+		{
+			state.orientation = Orientation.EAST;
+			return state;
+		}
+		else if(state.orientation.equals("WEST"))
+		{
+			state.orientation = Orientation.NORTH;
+			return state;
+		}
+		else if(state.orientation.equals("SOUTH"))
+		{
+			state.orientation = Orientation.WEST;
+			return state;
+		}
+		else
+		{
+			state.orientation = Orientation.SOUTH;
+			return state;
+		}
+	}
+	public void BFSsearch(State Thestate)
+	{
+		Queue<Node> Frontier = new LinkedList<Node>();
+		Node root = new Node(null,null,null,null, Thestate, "");
+		ArrayList<String> Moves = new ArrayList<String>();
+		BFSsearch(root, Frontier, Moves);
+	}
+	private void BFSsearch(Node node, Queue<Node>Frontier, ArrayList<String> Moves)
+	{
+		Frontier.add(node);
+		
+		if(dirts.contains(node.getState().position))
+		{
+			while(node.getParent() != null)
+			{
+				Moves.add(node.getMove());
+				node = node.getParent();
+			}
+			return;
+		}
+		else if (Frontier.isEmpty())
+		{
+			return;
+		}
+		else
+		{
+			Node N = Frontier.poll();
+			State S = N.getState();
+			insert(N,S);
+			BFSsearch(N,Frontier, Moves);
+		}
 	}
     public void init(Collection<String> percepts) {
 		/*
