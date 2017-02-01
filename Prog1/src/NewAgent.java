@@ -15,15 +15,15 @@ public class NewAgent implements Agent
 	private int startX;
 	private int startY;
 	private int[][] map;
-	private ArrayList<String> dirts = new ArrayList<String>();
-	private ArrayList<String> obstacles = new ArrayList<String>();
+	private ArrayList<Position> dirts = new ArrayList<Position>();
+	private ArrayList<Position> obstacles = new ArrayList<Position>();
 
 
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
 	*/
 	
-	public void initMap(ArrayList<String> dirts, ArrayList<String> obstacles, int xSize, int ySize, int sX, int sY)
+	public void initMap(ArrayList<Position> dirts, ArrayList<Position> obstacles, int xSize, int ySize, int sX, int sY)
 	{
 		map = new int[xSize][ySize];
 		
@@ -43,23 +43,20 @@ public class NewAgent implements Agent
 		}
 		
 		
-		for(String dirt:dirts)
+		for(Position dirt:dirts)
 		{
-			String[] words = dirt.split(",");
-			int x = Integer.parseInt(words[0]) - 1;
-			int y = Integer.parseInt(words[1]) - 1;
+			int x = dirt.x - 1;
+			int y = dirt.y - 1;
 		
 			//System.out.println(dirt + " - " + x + "," + y);
 
 			map[x][y] = 2;
 		}
 		
-		
-		for(String obstacle:obstacles)
+		for(Position obstacle:obstacles)
 		{
-			String[] words = obstacle.split(",");
-			int x = Integer.parseInt(words[0]) - 1;
-			int y = Integer.parseInt(words[1]) - 1;
+			int x = obstacle.x - 1;
+			int y = obstacle.y - 1;
 			
 			map[x][y] = 3;
 		}
@@ -73,6 +70,16 @@ public class NewAgent implements Agent
 			}
 			System.out.println();
 		}
+	}
+	
+	public ArrayList<Position> getDirts()
+	{
+		return dirts;
+	}
+	
+	public ArrayList<Position> getObstacles()
+	{
+		return obstacles;
 	}
 	
 
@@ -125,9 +132,14 @@ public class NewAgent implements Agent
 						
 						String[] words = word.split(" ");
 						//System.out.println("At dirt: " + words[2] + "," + words[3]);
+												
+						int xCord = Integer.parseInt(words[2]);
+						int yCord = Integer.parseInt(words[3]);
 						
-						String coord = words[2] + "," + words[3];
-						dirts.add(coord);
+						Position dirt = new Position(xCord, yCord);
+						
+						
+						dirts.add(dirt);
 						
 					}
 					else if(percept.startsWith("(AT OBSTACLE"))
@@ -138,7 +150,13 @@ public class NewAgent implements Agent
 						
 						String[] words = word.split(" ");
 						//System.out.println("At obstacle: " + words[2] + "," + words[3]);
-						obstacles.add(words[2] + "," + words[3]);
+						
+						int xCord = Integer.parseInt(words[2]);
+						int yCord = Integer.parseInt(words[3]);
+						
+						Position obstacle = new Position(xCord, yCord);
+						
+						obstacles.add(obstacle);
 					}
 					else if(percept.startsWith("(SIZE"))
 					{	
