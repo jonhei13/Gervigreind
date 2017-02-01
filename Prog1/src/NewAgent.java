@@ -15,9 +15,10 @@ public class NewAgent implements Agent
 	private int startX;
 	private int startY;
 	private int[][] map;
+	private Node root;
 	private ArrayList<Position> dirts = new ArrayList<Position>();
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
-
+	private ArrayList<State> visited = new ArrayList<State>();
 
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
@@ -82,7 +83,19 @@ public class NewAgent implements Agent
 		return obstacles;
 	}
 	
-
+	public boolean Visited(State theState)
+	{
+		if(!visited.contains(theState))
+			return false;
+		return true;
+	}
+	public boolean TurnThreeTimes(Node node)
+	{
+		String move = node.getMove();
+		if(node.getParent().getMove() == move && node.getParent().getParent().getMove() == move)
+			return true;
+		return false;
+	}
     public void init(Collection<String> percepts) {
 		/*
 			Possible percepts are:
