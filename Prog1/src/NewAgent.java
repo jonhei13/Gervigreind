@@ -4,22 +4,77 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
 
 public class NewAgent implements Agent
 {	
 	private int counter = 0;
 	private int cost = 0;
+	private int x;
+	private int y;
+	private int startX;
+	private int startY;
 	private int[][] map;
-	private int[] dirts;
-	private int[] obstacles;
-	private int xSize;
-	private int ySize;
-	private String orientation;
+	private ArrayList<String> dirts = new ArrayList<String>();
+	private ArrayList<String> obstacles = new ArrayList<String>();
 
 
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
 	*/
+	
+	public void initMap(ArrayList<String> dirts, ArrayList<String> obstacles, int xSize, int ySize, int sX, int sY)
+	{
+		map = new int[xSize][ySize];
+		
+		for(int i = 0; i < map.length; i++)
+		{
+			for(int j = 0; j < map[i].length; j++)
+			{
+				if(i == sX && j == sY)
+				{
+					map[i][j] = 5;
+				}
+				else
+				{
+					map[i][j] = 1;
+				}
+			}
+		}
+		
+		
+		for(String dirt:dirts)
+		{
+			String[] words = dirt.split(",");
+			int x = Integer.parseInt(words[0]) - 1;
+			int y = Integer.parseInt(words[1]) - 1;
+		
+			//System.out.println(dirt + " - " + x + "," + y);
+
+			map[x][y] = 2;
+		}
+		
+		
+		for(String obstacle:obstacles)
+		{
+			String[] words = obstacle.split(",");
+			int x = Integer.parseInt(words[0]) - 1;
+			int y = Integer.parseInt(words[1]) - 1;
+			
+			map[x][y] = 3;
+		}
+		
+		
+		for(int i = 0; i < map.length; i++)
+		{
+			for(int j = 0; j < map[i].length; j++)
+			{
+				System.out.print(map[i][j]);
+			}
+			System.out.println();
+		}
+	}
+	
 
     public void init(Collection<String> percepts) {
 		/*
@@ -39,7 +94,10 @@ public class NewAgent implements Agent
 				if (perceptName.equals("HOME")) {
 					Matcher m = Pattern.compile("\\(\\s*HOME\\s+([0-9]+)\\s+([0-9]+)\\s*\\)").matcher(percept);
 					if (m.matches()) {
-						System.out.println("robot is at " + m.group(1) + "," + m.group(2));
+						//System.out.println("robot is at " + m.group(1) + "," + m.group(2));
+						
+						startX = Integer.parseInt(m.group(1));
+						startY = Integer.parseInt(m.group(2));
 					}
 				}
 				else if(perceptName.equals("ORIENTATION"))
@@ -53,8 +111,7 @@ public class NewAgent implements Agent
 
 						
 						String[] words = word.split(" ");
-						System.out.println("Orientation: " + words[1]);
-						orientation = words[1];
+						//System.out.println("Orientation: " + words[1]);
 					}
 				}
 				else {
@@ -67,7 +124,10 @@ public class NewAgent implements Agent
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						System.out.println("At dirt: " + words[2] + "," + words[3]);
+						//System.out.println("At dirt: " + words[2] + "," + words[3]);
+						
+						String coord = words[2] + "," + words[3];
+						dirts.add(coord);
 						
 					}
 					else if(percept.startsWith("(AT OBSTACLE"))
@@ -77,7 +137,8 @@ public class NewAgent implements Agent
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						System.out.println("At obstacle: " + words[2] + "," + words[3]);
+						//System.out.println("At obstacle: " + words[2] + "," + words[3]);
+						obstacles.add(words[2] + "," + words[3]);
 					}
 					else if(percept.startsWith("(SIZE"))
 					{	
@@ -86,14 +147,17 @@ public class NewAgent implements Agent
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						System.out.println("Size: " + words[1] + "," + words[2]);
-						map = new int[Integer.parseInt(words[1])][Integer.parseInt(words[2])];
+						//System.out.println("Size: " + words[1] + "," + words[2]);
+						x = Integer.parseInt(words[1]);
+						y = Integer.parseInt(words[2]);
 					}
 				}
 			} else {
 				System.err.println("strange percept that does not match pattern: " + percept);
 			}
 		}
+		
+		initMap(dirts, obstacles, x, y, startX - 1, startY - 1);
     }
 
     public String nextAction(Collection<String> percepts) {
