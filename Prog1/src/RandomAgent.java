@@ -10,7 +10,6 @@ public class RandomAgent implements Agent
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
 	*/
-
     public void init(Collection<String> percepts) {
 		/*
 			Possible percepts are:

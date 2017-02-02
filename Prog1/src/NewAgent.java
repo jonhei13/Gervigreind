@@ -1,10 +1,7 @@
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Random;
+import java.awt.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.ArrayList;
 
 public class NewAgent implements Agent
 {	
@@ -18,6 +15,7 @@ public class NewAgent implements Agent
 	private ArrayList<Position> dirts = new ArrayList<Position>();
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
 	private ArrayList<State> visited = new ArrayList<State>();
+    private HashMap<State,Integer> hashMap = new HashMap<State,Integer>();
 
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
@@ -91,17 +89,17 @@ public class NewAgent implements Agent
 	public boolean TurnThreeTimes(Node node)
 	{
 		String move = node.getMove();
-		if(node.getParent().getMove() == move && node.getParent().getParent().getMove() == move)
+		if(node.getParent().getMove().equals(move)  && node.getParent().getParent().getMove().equals(move))
 			return true;
 		return false;
 	}
-	public void insert(Node node, State state)
+	private void insert(Node node, State state)
 	{
 		node.left = new Node(null, null, null, node, stateLeft(state), "TURN_LEFT");
 		node.center = new Node(null, null, null, node, stateGo(state), "GO");
 		node.right = new Node(null, null, null, node, stateRight(state), "TURN_RIGHT");
 	}
-	public State stateLeft(State state)
+	private State stateLeft(State state)
 	{
 		if(state.orientation.equals("NORTH"))
 		{
@@ -124,7 +122,7 @@ public class NewAgent implements Agent
 			return state;
 		}
 	}
-	public State stateGo(State state)
+	private State stateGo(State state)
 	{
 		if(state.orientation.equals("NORTH"))
 		{
@@ -147,7 +145,7 @@ public class NewAgent implements Agent
 			return state;
 		}
 	}
-	public State stateRight(State state)
+	private State stateRight(State state)
 	{
 		if(state.orientation.equals("NORTH"))
 		{
@@ -202,6 +200,35 @@ public class NewAgent implements Agent
 			BFSsearch(N,Frontier, Moves);
 		}
 	}
+	public void generateStates()
+    {
+        // 5x5  1,1,0,0
+        int size = (x * y * 4) - 2;
+        ArrayList<Position> Positions = new ArrayList<Position>();
+        int tempx = 1;
+        int tempy = 1;
+        int counter = 0;
+
+        for (int i = 1; i <= y; i++){
+            for (int j = 1; j <= x; j++){
+                Position pos = new Position(tempx,tempy);
+                for (int k = 0; k < 4; k++){
+                    State mystate = new State(pos, Orientation.values()[k], true);
+                    hashMap.put(mystate, counter);
+                    counter++;
+                }
+                tempx++;
+            }
+                tempx = 1;
+                tempy++;
+        }
+        hashMap.get(0);
+        for (int i = 0; i < size; i++)
+        {
+
+        }
+
+    }
     public void init(Collection<String> percepts) {
 		/*
 			et to turn it on.Possible percepts are:
@@ -237,7 +264,7 @@ public class NewAgent implements Agent
 
 						
 						String[] words = word.split(" ");
-						//System.out.println("Orientation: " + words[1]);
+						System.out.println("Orientation: " + words[1]);
 					}
 				}
 				else {
@@ -250,7 +277,7 @@ public class NewAgent implements Agent
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						//System.out.println("At dirt: " + words[2] + "," + words[3]);
+						System.out.println("At dirt: " + words[2] + "," + words[3]);
 												
 						int xCord = Integer.parseInt(words[2]);
 						int yCord = Integer.parseInt(words[3]);
@@ -268,7 +295,7 @@ public class NewAgent implements Agent
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						//System.out.println("At obstacle: " + words[2] + "," + words[3]);
+						System.out.println("At obstacle: " + words[2] + "," + words[3]);
 						
 						int xCord = Integer.parseInt(words[2]);
 						int yCord = Integer.parseInt(words[3]);
@@ -284,7 +311,7 @@ public class NewAgent implements Agent
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						//System.out.println("Size: " + words[1] + "," + words[2]);
+						System.out.println("Size: " + words[1] + "," + words[2]);
 						x = Integer.parseInt(words[1]);
 						y = Integer.parseInt(words[2]);
 					}
@@ -293,8 +320,10 @@ public class NewAgent implements Agent
 				System.err.println("strange percept that does not match pattern: " + percept);
 			}
 		}
+        generateStates();
 		
 		initMap(dirts, obstacles, x, y, startX - 1, startY - 1);
+
     }
 
     public String nextAction(Collection<String> percepts) {

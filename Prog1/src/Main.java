@@ -10,7 +10,8 @@ public class Main {
 		try{
 			// TODO: put in your agent here
 			Agent agent = new NewAgent();
-
+            agent.generateStates(5,5
+            );
 			int port=4001;
 			if(args.length>=1){
 				port=Integer.parseInt(args[0]);
