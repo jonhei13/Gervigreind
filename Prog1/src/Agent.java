@@ -1,5 +1,3 @@
-package Prog1;
-
 import java.util.Collection;
 
 public interface Agent

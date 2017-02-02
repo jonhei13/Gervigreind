@@ -1,13 +1,11 @@
-package Prog1;
-
 public class State {
 
 	//orientation
 	//turned on/off
-	//hvaða dirt eru eftir
+	//hvaï¿½a dirt eru eftir
 	//position
-	//hvaða hlutir breytast
-	//mögulega legal actions úr þessu state-i
+	//hvaï¿½a hlutir breytast
+	//mï¿½gulega legal actions ï¿½r ï¿½essu state-i
 	
 	public Orientation orientation;
 	public Position position;
@@ -22,5 +20,44 @@ public class State {
 	public String toString() {
 		return "State{position: " + position + ", orientation: " + orientation + ", on:" + turned_on + "}";
 	}
-	
+	public boolean equals(Object o){
+		State s = (State) o;
+		return s.position.equals(this.position) && s.orientation.equals(this.orientation) && s.orientation == this.orientation
+				&& this.turned_on == s.turned_on;
+	}
+	public int hashCode() {
+		int hash;
+		Orientation[] o = Orientation.values();
+		if(this.orientation == o[0])
+		{
+			hash = 1298617 ;
+		}
+
+		else if(this.orientation == o[1])
+		{
+			hash = 1298641 ;
+		}
+
+		else if(this.orientation == o[1])
+		{
+			hash = 1298651 ;
+		}
+
+		else
+		{
+			hash = 1298653 ;
+		}
+
+		if(this.turned_on)
+			hash = hash * 1299457;
+		else{
+			hash = hash * 15485849;
+		}
+
+		hash = hash*this.position.x^this.position.y;
+		hash = hash*this.position.y^this.position.x;
+		return hash;
+	}
+
+
 }

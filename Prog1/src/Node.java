@@ -1,5 +1,3 @@
-package Prog1;
-
 public class Node
 {
 	public Node left;

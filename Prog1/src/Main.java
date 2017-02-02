@@ -1,5 +1,3 @@
-package Prog1;
-
 import java.io.IOException;
 
 public class Main {

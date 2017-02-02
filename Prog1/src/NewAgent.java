@@ -1,5 +1,3 @@
-package Prog1;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -206,13 +204,13 @@ public class NewAgent implements Agent
 	}
     public void init(Collection<String> percepts) {
 		/*
-			Possible percepts are:
+			et to turn it on.Possible percepts are:
 			- "(SIZE x y)" denoting the size of the environment, where x,y are integers
 			- "(HOME x y)" with x,y >= 1 denoting the initial position of the robot
 			- "(ORIENTATION o)" with o in {"NORTH", "SOUTH", "EAST", "WEST"} denoting the initial orientation of the robot
 			- "(AT o x y)" with o being "DIRT" or "OBSTACLE" denoting the position of a dirt or an obstacle
 			Moving north increases the y coordinate and moving east increases the x coordinate of the robots position.
-			The robot is turned off initially, so don't forget to turn it on.
+			The robot is turned off initially, so don't forg
 		*/
 		Pattern perceptNamePattern = Pattern.compile("\\(\\s*([^\\s]+).*");
 		for (String percept:percepts) {
