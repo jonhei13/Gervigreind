@@ -21,6 +21,8 @@ public class NewAgent implements Agent
     private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
     private Queue<Node> Frontier = new LinkedList<Node>();
     private ArrayList<String> BFSMoves = new ArrayList<String>();
+    private ArrayList<Position>FoundDirts = new ArrayList<Position>();
+    private Node root;
 
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
@@ -196,8 +198,9 @@ public class NewAgent implements Agent
 	public void BFSsearch(State Thestate)
 	{
 		Node root = new Node(null,null,null,null, Thestate, "");
-        BFSsearch(root);
-        root = root;
+        while(FoundDirts.size() != dirts.size()) {
+            BFSsearch(root);
+        }
 
 	}
 	private void BFSsearch(Node node)
@@ -206,6 +209,8 @@ public class NewAgent implements Agent
 		
 		if(dirts.contains(node.getState().position))
 		{
+            FoundDirts.add(node.getState().position);
+            root = node;
             BFSMoves.add("SUCK");
 			while(node.getParent() != null)
 			{
