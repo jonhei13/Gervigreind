@@ -1,3 +1,5 @@
+import com.sun.org.apache.xpath.internal.operations.Or;
+
 import java.awt.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -11,11 +13,13 @@ public class NewAgent implements Agent
 	private int y;
 	private int startX;
 	private int startY;
+    private String direction;
 	private int[][] map;
 	private ArrayList<Position> dirts = new ArrayList<Position>();
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
 	private ArrayList<State> visited = new ArrayList<State>();
-    private HashMap<State,Integer> hashMap = new HashMap<State,Integer>();
+    private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
+    private Queue<Node> Frontier = new LinkedList<Node>();
 
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
@@ -58,8 +62,7 @@ public class NewAgent implements Agent
 			
 			map[x][y] = 3;
 		}
-		
-		
+
 		for(int i = 0; i < map.length; i++)
 		{
 			for(int j = 0; j < map[i].length; j++)
@@ -93,33 +96,71 @@ public class NewAgent implements Agent
 			return true;
 		return false;
 	}
-	private void insert(Node node, State state)
-	{
-		node.left = new Node(null, null, null, node, stateLeft(state), "TURN_LEFT");
-		node.center = new Node(null, null, null, node, stateGo(state), "GO");
-		node.right = new Node(null, null, null, node, stateRight(state), "TURN_RIGHT");
+	private int insert(Node node, State state, int counter) {
+
+        int newX = state.position.x;
+        int newY = state.position.y;
+        if (state.orientation.equals(Orientation.NORTH)) {
+            if (newY != 1) {
+                newY--;
+            }
+        }
+        else if (state.orientation.equals(Orientation.WEST)){
+            if (newX != 1){
+                newX--;
+            }
+        }
+        else if (state.orientation.equals(Orientation.SOUTH)){
+            if (newY != y) {
+                newY++;
+            }
+        }
+        else if (state.orientation.equals(Orientation.EAST)){
+            if (newX != x){
+                newX++;
+            }
+        }
+        Position pos = new Position(newX, newY);
+        State LeftState = new State(state.position, stateLeft(state), true);
+        State CenterState = new State(pos, state.orientation, true);
+        State RightState = new State(state.position, stateRight(state), true);
+
+        hashMap.put(counter,LeftState);
+        counter++;
+        hashMap.put(counter,CenterState);
+        counter++;
+        hashMap.put(counter,RightState);
+        counter++;
+
+        node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
+        node.center = new Node(null, null, null, node, CenterState, "GO");
+        node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
+        Frontier.add(node.left);
+        Frontier.add(node.center);
+        Frontier.add(node.right);
+        return counter;
 	}
-	private State stateLeft(State state)
+	private Orientation stateLeft(State state)
 	{
-		if(state.orientation.equals("NORTH"))
+		if(state.orientation.equals(Orientation.NORTH))
 		{
-			state.orientation = Orientation.WEST;
-			return state;
+			//state.orientation = Orientation.WEST;
+			return Orientation.WEST;
 		}
-		else if(state.orientation.equals("WEST"))
+		else if(state.orientation.equals(Orientation.WEST))
 		{
 			state.orientation = Orientation.SOUTH;
-			return state;
+			return Orientation.SOUTH;
 		}
-		else if(state.orientation.equals("SOUTH"))
+		else if(state.orientation.equals(Orientation.SOUTH))
 		{
 			state.orientation = Orientation.EAST;
-			return state;
+			return Orientation.EAST;
 		}
 		else
 		{
 			state.orientation = Orientation.NORTH;
-			return state;
+			return Orientation.NORTH;
 		}
 	}
 	private State stateGo(State state)
@@ -145,37 +186,37 @@ public class NewAgent implements Agent
 			return state;
 		}
 	}
-	private State stateRight(State state)
+	private Orientation stateRight(State state)
 	{
-		if(state.orientation.equals("NORTH"))
+		if(state.orientation.equals(Orientation.NORTH))
 		{
 			state.orientation = Orientation.EAST;
-			return state;
+			return Orientation.EAST;
 		}
-		else if(state.orientation.equals("WEST"))
+		else if(state.orientation.equals(Orientation.WEST))
 		{
 			state.orientation = Orientation.NORTH;
-			return state;
+			return Orientation.NORTH;
 		}
-		else if(state.orientation.equals("SOUTH"))
+		else if(state.orientation.equals(Orientation.SOUTH))
 		{
 			state.orientation = Orientation.WEST;
-			return state;
+			return Orientation.WEST;
 		}
 		else
 		{
 			state.orientation = Orientation.SOUTH;
-			return state;
+			return Orientation.SOUTH;
 		}
 	}
 	public void BFSsearch(State Thestate)
 	{
-		Queue<Node> Frontier = new LinkedList<Node>();
 		Node root = new Node(null,null,null,null, Thestate, "");
 		ArrayList<String> Moves = new ArrayList<String>();
-		BFSsearch(root, Frontier, Moves);
+		int counter = 0;
+        BFSsearch(root, Moves, counter);
 	}
-	private void BFSsearch(Node node, Queue<Node>Frontier, ArrayList<String> Moves)
+	private void BFSsearch(Node node, ArrayList<String> Moves, int counter)
 	{
 		Frontier.add(node);
 		
@@ -196,37 +237,41 @@ public class NewAgent implements Agent
 		{
 			Node N = Frontier.poll();
 			State S = N.getState();
-			insert(N,S);
-			BFSsearch(N,Frontier, Moves);
+		    counter = insert(N,S,counter);
+			BFSsearch(N, Moves,counter);
 		}
 	}
 	public void generateStates()
     {
-        // 5x5  1,1,0,0
+
         int size = (x * y * 4) - 2;
         ArrayList<Position> Positions = new ArrayList<Position>();
         int tempx = 1;
         int tempy = 1;
         int counter = 0;
 
+        Position startpos = new Position(startX,startY);
+        State state = new State(startpos, Orientation.valueOf(direction), false);
+        hashMap.put(counter,state);
+        counter++;
+
         for (int i = 1; i <= y; i++){
             for (int j = 1; j <= x; j++){
                 Position pos = new Position(tempx,tempy);
-                for (int k = 0; k < 4; k++){
-                    State mystate = new State(pos, Orientation.values()[k], true);
-                    hashMap.put(mystate, counter);
-                    counter++;
+                if (!obstacles.contains(pos)){
+                    for (int k = 0; k < 4; k++){
+                        State mystate = new State(pos, Orientation.values()[k], true);
+                        hashMap.put(counter, mystate);
+                        counter++;
+                    }
                 }
                 tempx++;
             }
                 tempx = 1;
                 tempy++;
         }
-        hashMap.get(0);
-        for (int i = 0; i < size; i++)
-        {
+        hashMap.get(1);
 
-        }
 
     }
     public void init(Collection<String> percepts) {
@@ -265,6 +310,7 @@ public class NewAgent implements Agent
 						
 						String[] words = word.split(" ");
 						System.out.println("Orientation: " + words[1]);
+                        direction = words[1];
 					}
 				}
 				else {
@@ -320,7 +366,10 @@ public class NewAgent implements Agent
 				System.err.println("strange percept that does not match pattern: " + percept);
 			}
 		}
-        generateStates();
+		Position pos = new Position(startX,startY);
+		State state = new State(pos, Orientation.valueOf(direction), true);
+        BFSsearch(state);
+        hashMap.get(1);
 		
 		initMap(dirts, obstacles, x, y, startX - 1, startY - 1);
 
