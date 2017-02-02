@@ -20,7 +20,7 @@ public class NewAgent implements Agent
 	private ArrayList<State> visited = new ArrayList<State>();
     private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
     private Queue<Node> Frontier = new LinkedList<Node>();
-    private ArrayList<String> BFSMoves = new ArrayList<String>();
+    private Stack<String> BFSMoves = new Stack<String>();
     private ArrayList<Position>FoundDirts = new ArrayList<Position>();
     private Node root;
 
@@ -198,9 +198,12 @@ public class NewAgent implements Agent
 	public void BFSsearch(State Thestate)
 	{
 		Node root = new Node(null,null,null,null, Thestate, "");
+        BFSMoves.push("TURN_ON");
         while(FoundDirts.size() != dirts.size()) {
             BFSsearch(root);
         }
+        BFSMoves.push("TURN_OFF");
+
 
 	}
 	private void BFSsearch(Node node)
@@ -211,11 +214,11 @@ public class NewAgent implements Agent
 		{
             FoundDirts.add(node.getState().position);
             root = node;
-            BFSMoves.add("SUCK");
+            BFSMoves.push("SUCK");
 			while(node.getParent() != null)
 			{
 
-                BFSMoves.add(node.getMove());
+                BFSMoves.push(node.getMove());
 				node = node.getParent();
 			}
 
@@ -327,7 +330,6 @@ public class NewAgent implements Agent
 		State state = new State(pos, Orientation.valueOf(direction), true);
         hashMap.put(state.hashCode(), state);
         BFSsearch(state);
-        BFSMoves = BFSMoves;
         hashMap.get(1);
 		
 		initMap(dirts, obstacles, x, y, startX - 1, startY - 1);
@@ -342,18 +344,20 @@ public class NewAgent implements Agent
 		}
 		System.out.println("");
 		String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
-    	
-    	
-    	if(counter == 0)
-    	{
-    		counter++;
-    		return actions[0];
-    	}
-    	
-    	else
-    	{
-    		return actions[4];
-    	}
+
+        String Action = BFSMoves.pop();
+        if (Action.equals("TURN_ON"))
+            return actions[0];
+        else if (Action.equals("TURN_RIGHT"))
+            return actions[2];
+        else if (Action.equals("TURN_LEFT"))
+            return actions[3];
+        else if (Action.equals("GO"))
+            return actions[4];
+        else if (Action.equals("SUCK"))
+            return actions[4];
+        else
+            return actions[1];
     	
 
 		
