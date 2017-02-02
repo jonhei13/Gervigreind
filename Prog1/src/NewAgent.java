@@ -20,6 +20,7 @@ public class NewAgent implements Agent
 	private ArrayList<State> visited = new ArrayList<State>();
     private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
     private Queue<Node> Frontier = new LinkedList<Node>();
+    private ArrayList<String> BFSMoves = new ArrayList<String>();
 
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
@@ -82,22 +83,33 @@ public class NewAgent implements Agent
 	{
 		return obstacles;
 	}
-	
-	public boolean Visited(State theState)
-	{
-		if(!visited.contains(theState))
-			return false;
-		return true;
-	}
-	public boolean TurnThreeTimes(Node node)
-	{
-		String move = node.getMove();
-		if(node.getParent().getMove().equals(move)  && node.getParent().getParent().getMove().equals(move))
-			return true;
-		return false;
-	}
-	private int insert(Node node, State state, int counter) {
 
+
+	private Orientation stateLeft(State state)
+	{
+		if(state.orientation.equals(Orientation.NORTH))
+		{
+			//state.orientation = Orientation.WEST;
+			return Orientation.WEST;
+		}
+		else if(state.orientation.equals(Orientation.WEST))
+		{
+		//	state.orientation = Orientation.SOUTH;
+			return Orientation.SOUTH;
+		}
+		else if(state.orientation.equals(Orientation.SOUTH))
+		{
+		//	state.orientation = Orientation.EAST;
+			return Orientation.EAST;
+		}
+		else
+		{
+		//	state.orientation = Orientation.NORTH;
+			return Orientation.NORTH;
+		}
+	}
+	private Position stateGo(State state)
+	{
         int newX = state.position.x;
         int newY = state.position.y;
         if (state.orientation.equals(Orientation.NORTH)) {
@@ -121,159 +133,99 @@ public class NewAgent implements Agent
             }
         }
         Position pos = new Position(newX, newY);
-        State LeftState = new State(state.position, stateLeft(state), true);
-        State CenterState = new State(pos, state.orientation, true);
-        State RightState = new State(state.position, stateRight(state), true);
+        return pos;
 
-        hashMap.put(counter,LeftState);
-        counter++;
-        hashMap.put(counter,CenterState);
-        counter++;
-        hashMap.put(counter,RightState);
-        counter++;
-
-        node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
-        node.center = new Node(null, null, null, node, CenterState, "GO");
-        node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
-        Frontier.add(node.left);
-        Frontier.add(node.center);
-        Frontier.add(node.right);
-        return counter;
-	}
-	private Orientation stateLeft(State state)
-	{
-		if(state.orientation.equals(Orientation.NORTH))
-		{
-			//state.orientation = Orientation.WEST;
-			return Orientation.WEST;
-		}
-		else if(state.orientation.equals(Orientation.WEST))
-		{
-			state.orientation = Orientation.SOUTH;
-			return Orientation.SOUTH;
-		}
-		else if(state.orientation.equals(Orientation.SOUTH))
-		{
-			state.orientation = Orientation.EAST;
-			return Orientation.EAST;
-		}
-		else
-		{
-			state.orientation = Orientation.NORTH;
-			return Orientation.NORTH;
-		}
-	}
-	private State stateGo(State state)
-	{
-		if(state.orientation.equals("NORTH"))
-		{
-			state.position.y = state.position.y-1;
-			return state;
-		}
-		else if(state.orientation.equals("WEST"))
-		{
-			state.position.y = state.position.x-1;
-			return state;
-		}
-		else if(state.orientation.equals("SOUTH"))
-		{
-			state.position.y = state.position.y+1;
-			return state;
-		}
-		else
-		{
-			state.position.y = state.position.x+1;
-			return state;
-		}
 	}
 	private Orientation stateRight(State state)
 	{
 		if(state.orientation.equals(Orientation.NORTH))
 		{
-			state.orientation = Orientation.EAST;
+		//	state.orientation = Orientation.EAST;
 			return Orientation.EAST;
 		}
 		else if(state.orientation.equals(Orientation.WEST))
 		{
-			state.orientation = Orientation.NORTH;
+		//	state.orientation = Orientation.NORTH;
 			return Orientation.NORTH;
 		}
 		else if(state.orientation.equals(Orientation.SOUTH))
 		{
-			state.orientation = Orientation.WEST;
+		//	state.orientation = Orientation.WEST;
 			return Orientation.WEST;
 		}
 		else
 		{
-			state.orientation = Orientation.SOUTH;
+			//state.orientation = Orientation.SOUTH;
 			return Orientation.SOUTH;
 		}
 	}
+
+    private void insert(Node node, State state) {
+
+        Position pos = stateGo(state);
+        State LeftState = new State(state.position, stateLeft(state), true);
+        State RightState = new State(state.position, stateRight(state), true);
+
+
+        if (!obstacles.contains(pos)) {
+            State CenterState = new State(pos, state.orientation, true);
+            if (!hashMap.containsValue(CenterState)){
+                hashMap.put(CenterState.hashCode(), CenterState);
+                node.center = new Node(null, null, null, node, CenterState, "GO");
+                Frontier.add(node.center);
+            }
+        }
+
+        if (!hashMap.containsValue(LeftState)){
+            hashMap.put(LeftState.hashCode(), LeftState);
+            node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
+            Position Leftpos = stateGo(LeftState);
+            if (!obstacles.contains(Leftpos))
+                Frontier.add(node.left);
+        }
+
+        if (!hashMap.containsValue(RightState)){
+            hashMap.put(RightState.hashCode(), RightState);
+            node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
+            Position Rightpos = stateGo(RightState);
+            if (!obstacles.contains(Rightpos))
+                Frontier.add(node.right);
+        }
+    }
+
 	public void BFSsearch(State Thestate)
 	{
 		Node root = new Node(null,null,null,null, Thestate, "");
-		ArrayList<String> Moves = new ArrayList<String>();
-		int counter = 0;
-        BFSsearch(root, Moves, counter);
+        BFSsearch(root);
+        root = root;
+
 	}
-	private void BFSsearch(Node node, ArrayList<String> Moves, int counter)
+	private void BFSsearch(Node node)
 	{
 		Frontier.add(node);
 		
 		if(dirts.contains(node.getState().position))
 		{
+            BFSMoves.add("SUCK");
 			while(node.getParent() != null)
 			{
-				Moves.add(node.getMove());
+
+                BFSMoves.add(node.getMove());
 				node = node.getParent();
 			}
-			return;
+
 		}
 		else if (Frontier.isEmpty())
 		{
 			return;
 		}
-		else
-		{
-			Node N = Frontier.poll();
-			State S = N.getState();
-		    counter = insert(N,S,counter);
-			BFSsearch(N, Moves,counter);
-		}
-	}
-	public void generateStates()
-    {
-
-        int size = (x * y * 4) - 2;
-        ArrayList<Position> Positions = new ArrayList<Position>();
-        int tempx = 1;
-        int tempy = 1;
-        int counter = 0;
-
-        Position startpos = new Position(startX,startY);
-        State state = new State(startpos, Orientation.valueOf(direction), false);
-        hashMap.put(counter,state);
-        counter++;
-
-        for (int i = 1; i <= y; i++){
-            for (int j = 1; j <= x; j++){
-                Position pos = new Position(tempx,tempy);
-                if (!obstacles.contains(pos)){
-                    for (int k = 0; k < 4; k++){
-                        State mystate = new State(pos, Orientation.values()[k], true);
-                        hashMap.put(counter, mystate);
-                        counter++;
-                    }
-                }
-                tempx++;
-            }
-                tempx = 1;
-                tempy++;
+		else {
+            Node N = Frontier.poll();
+            State S = N.getState();
+            insert(N, S);
+            BFSsearch(N);
         }
-        hashMap.get(1);
-
-
-    }
+	}
     public void init(Collection<String> percepts) {
 		/*
 			et to turn it on.Possible percepts are:
@@ -368,7 +320,9 @@ public class NewAgent implements Agent
 		}
 		Position pos = new Position(startX,startY);
 		State state = new State(pos, Orientation.valueOf(direction), true);
+        hashMap.put(state.hashCode(), state);
         BFSsearch(state);
+        BFSMoves = BFSMoves;
         hashMap.get(1);
 		
 		initMap(dirts, obstacles, x, y, startX - 1, startY - 1);

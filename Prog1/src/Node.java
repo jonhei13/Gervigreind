@@ -14,6 +14,7 @@ public class Node
 		this.parent = parent;
 		this.state = state;
 		this.move = move;
+		this.center = center;
 	}
 	public Node getParent()
 	{
