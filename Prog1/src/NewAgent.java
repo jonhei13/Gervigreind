@@ -16,13 +16,13 @@ public class NewAgent implements Agent
 	private int startY;
     private String direction;
 	private int[][] map;
+	private int initSizeOfDirts = 0;
 	private ArrayList<Position> dirts = new ArrayList<Position>();
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
 	private ArrayList<State> visited = new ArrayList<State>();
     private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
     private Queue<Node> Frontier = new LinkedList<Node>();
     private Stack<String> BFSMoves = new Stack<String>();
-    private ArrayList<Position>FoundDirts = new ArrayList<Position>();
     private Node root;
 
 	/*
@@ -54,7 +54,7 @@ public class NewAgent implements Agent
 			int y = dirt.y - 1;
 		
 			//System.out.println(dirt + " - " + x + "," + y);
-
+			initSizeOfDirts++;
 			map[x][y] = 2;
 		}
 		
@@ -200,34 +200,37 @@ public class NewAgent implements Agent
 	public void BFSsearch(State Thestate)
 	{
 		root = new Node(null,null,null,null, Thestate, "");
-        BFSMoves.push("TURN_OFF");
-        while(FoundDirts.size() != dirts.size()) {
-            BFSsearch(root);
-        }
-        BFSMoves.push("TURN_ON");
+        
+        BFSsearch(root);
 	}
 
 	private void BFSsearch(Node node)
 	{
 		Frontier.add(node);
 		
-		if(dirts.equals(node.getState().position) && !FoundDirts.equals(node.getState().position))
+		if(dirts.contains(node.getState().position))
 		{
 			System.out.println("Node State: " + node.getState().position);
 			System.out.println("Dirts pos: "  + dirts);
 			System.out.println("Obstacles pos: "  + obstacles);
-            FoundDirts.add(node.getState().position);
-            root = node;
+            if(dirts.size() == initSizeOfDirts)
+            	BFSMoves.push("TURN_OFF");
+			dirts.remove(node.getState().position);
+            State rootState = node.getState();
             BFSMoves.push("SUCK");
-
+            Frontier.clear();
 			while(node.getParent() != null)
 			{
                 BFSMoves.push(node.getMove());
                 System.out.println("Adding move: " + node.getMove() + " to BFSMoves");
 				node = node.getParent();
 			}
+			if(!dirts.isEmpty())
+				BFSsearch(rootState);
+			else
+				BFSMoves.push("TURN_ON");
 		}
-		else if (Frontier.isEmpty())
+		else if(Frontier.isEmpty())
 		{
 			return;
 		}
