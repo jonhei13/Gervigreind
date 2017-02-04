@@ -1,4 +1,5 @@
-import com.sun.org.apache.xpath.internal.operations.Or;
+package Prog1;
+
 
 import java.awt.*;
 import java.util.*;
@@ -38,11 +39,11 @@ public class NewAgent implements Agent
 			{
 				if(i == sX && j == sY)
 				{
-					map[j][i] = 5;
+					map[i][j] = 5;
 				}
 				else
 				{
-					map[j][i] = 1;
+					map[i][j] = 1;
 				}
 			}
 		}
@@ -54,7 +55,7 @@ public class NewAgent implements Agent
 		
 			//System.out.println(dirt + " - " + x + "," + y);
 
-			map[y][x] = 2;
+			map[x][y] = 2;
 		}
 		
 		for(Position obstacle:obstacles)
@@ -62,14 +63,14 @@ public class NewAgent implements Agent
 			int x = obstacle.x - 1;
 			int y = obstacle.y - 1;
 			
-			map[y][x] = 3;
+			map[x][y] = 3;
 		}
 
 		for(int i = 0; i < map.length; i++)
 		{
 			for(int j = 0; j < map[i].length; j++)
 			{
-				System.out.print(map[j][i]);
+				System.out.print(map[i][j]);
 			}
 			System.out.println();
 		}
@@ -115,8 +116,8 @@ public class NewAgent implements Agent
         int newX = state.position.x;
         int newY = state.position.y;
         if (state.orientation.equals(Orientation.NORTH)) {
-            if (newY != 1) {
-                newY--;
+            if (newY != y) {
+                newY++;
             }
         }
         else if (state.orientation.equals(Orientation.WEST)){
@@ -125,8 +126,8 @@ public class NewAgent implements Agent
             }
         }
         else if (state.orientation.equals(Orientation.SOUTH)){
-            if (newY != y) {
-                newY++;
+            if (newY != 1) {
+                newY--;
             }
         }
         else if (state.orientation.equals(Orientation.EAST)){
@@ -198,7 +199,7 @@ public class NewAgent implements Agent
 
 	public void BFSsearch(State Thestate)
 	{
-		Node root = new Node(null,null,null,null, Thestate, "");
+		root = new Node(null,null,null,null, Thestate, "");
         BFSMoves.push("TURN_OFF");
         while(FoundDirts.size() != dirts.size()) {
             BFSsearch(root);
@@ -210,8 +211,11 @@ public class NewAgent implements Agent
 	{
 		Frontier.add(node);
 		
-		if(dirts.contains(node.getState().position))
+		if(dirts.equals(node.getState().position) && !FoundDirts.equals(node.getState().position))
 		{
+			System.out.println("Node State: " + node.getState().position);
+			System.out.println("Dirts pos: "  + dirts);
+			System.out.println("Obstacles pos: "  + obstacles);
             FoundDirts.add(node.getState().position);
             root = node;
             BFSMoves.push("SUCK");
@@ -253,7 +257,6 @@ public class NewAgent implements Agent
 				if (perceptName.equals("HOME")) {
 					Matcher m = Pattern.compile("\\(\\s*HOME\\s+([0-9]+)\\s+([0-9]+)\\s*\\)").matcher(percept);
 					if (m.matches()) {
-						//System.out.println("robot is at " + m.group(1) + "," + m.group(2));
 						
 						startX = Integer.parseInt(m.group(1));
 						startY = Integer.parseInt(m.group(2));
@@ -268,7 +271,6 @@ public class NewAgent implements Agent
 						word = word.replace("(", "");
 						word = word.replace(")", "");
 
-						
 						String[] words = word.split(" ");
 						//System.out.println("Orientation: " + words[1]);
                         direction = words[1];
@@ -291,9 +293,7 @@ public class NewAgent implements Agent
 						
 						Position dirt = new Position(xCord, yCord);
 						
-						
 						dirts.add(dirt);
-						
 					}
 					else if(percept.startsWith("(AT OBSTACLE"))
 					{	
@@ -335,6 +335,7 @@ public class NewAgent implements Agent
 
 		BFSsearch(state);
         hashMap.get(1);
+        
 		
 
     }
@@ -363,13 +364,11 @@ public class NewAgent implements Agent
             return actions[2];
         else if (Action.equals("TURN_LEFT"))
             return actions[3];
-        else if (Action.equals("GO") && per != "BUMP")
+        else if (Action.equals("GO"))
             return actions[4];
         else if (Action.equals("SUCK"))
             return actions[5];
-        else if (Action.equals("TURN_OFF"))
-			return actions[1];
         else
-        	return actions[4];
+			return actions[1];
 	}
 }
