@@ -38,16 +38,15 @@ public class NewAgent implements Agent
 			{
 				if(i == sX && j == sY)
 				{
-					map[i][j] = 5;
+					map[j][i] = 5;
 				}
 				else
 				{
-					map[i][j] = 1;
+					map[j][i] = 1;
 				}
 			}
 		}
-		
-		
+
 		for(Position dirt:dirts)
 		{
 			int x = dirt.x - 1;
@@ -55,7 +54,7 @@ public class NewAgent implements Agent
 		
 			//System.out.println(dirt + " - " + x + "," + y);
 
-			map[x][y] = 2;
+			map[y][x] = 2;
 		}
 		
 		for(Position obstacle:obstacles)
@@ -63,14 +62,14 @@ public class NewAgent implements Agent
 			int x = obstacle.x - 1;
 			int y = obstacle.y - 1;
 			
-			map[x][y] = 3;
+			map[y][x] = 3;
 		}
 
 		for(int i = 0; i < map.length; i++)
 		{
 			for(int j = 0; j < map[i].length; j++)
 			{
-				System.out.print(map[i][j]);
+				System.out.print(map[j][i]);
 			}
 			System.out.println();
 		}
@@ -110,6 +109,7 @@ public class NewAgent implements Agent
 			return Orientation.NORTH;
 		}
 	}
+
 	private Position stateGo(State state)
 	{
         int newX = state.position.x;
@@ -138,6 +138,7 @@ public class NewAgent implements Agent
         return pos;
 
 	}
+
 	private Orientation stateRight(State state)
 	{
 		if(state.orientation.equals(Orientation.NORTH))
@@ -198,14 +199,13 @@ public class NewAgent implements Agent
 	public void BFSsearch(State Thestate)
 	{
 		Node root = new Node(null,null,null,null, Thestate, "");
-        BFSMoves.push("TURN_ON");
+        BFSMoves.push("TURN_OFF");
         while(FoundDirts.size() != dirts.size()) {
             BFSsearch(root);
         }
-        BFSMoves.push("TURN_OFF");
-
-
+        BFSMoves.push("TURN_ON");
 	}
+
 	private void BFSsearch(Node node)
 	{
 		Frontier.add(node);
@@ -215,13 +215,13 @@ public class NewAgent implements Agent
             FoundDirts.add(node.getState().position);
             root = node;
             BFSMoves.push("SUCK");
+
 			while(node.getParent() != null)
 			{
-
                 BFSMoves.push(node.getMove());
+                System.out.println("Adding move: " + node.getMove() + " to BFSMoves");
 				node = node.getParent();
 			}
-
 		}
 		else if (Frontier.isEmpty())
 		{
@@ -234,6 +234,7 @@ public class NewAgent implements Agent
             BFSsearch(N);
         }
 	}
+
     public void init(Collection<String> percepts) {
 		/*
 			et to turn it on.Possible percepts are:
@@ -269,7 +270,7 @@ public class NewAgent implements Agent
 
 						
 						String[] words = word.split(" ");
-						System.out.println("Orientation: " + words[1]);
+						//System.out.println("Orientation: " + words[1]);
                         direction = words[1];
 					}
 				}
@@ -283,7 +284,7 @@ public class NewAgent implements Agent
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						System.out.println("At dirt: " + words[2] + "," + words[3]);
+						//System.out.println("At dirt: " + words[2] + "," + words[3]);
 												
 						int xCord = Integer.parseInt(words[2]);
 						int yCord = Integer.parseInt(words[3]);
@@ -301,7 +302,7 @@ public class NewAgent implements Agent
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						System.out.println("At obstacle: " + words[2] + "," + words[3]);
+						//System.out.println("At obstacle: " + words[2] + "," + words[3]);
 						
 						int xCord = Integer.parseInt(words[2]);
 						int yCord = Integer.parseInt(words[3]);
@@ -317,7 +318,7 @@ public class NewAgent implements Agent
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						System.out.println("Size: " + words[1] + "," + words[2]);
+						//System.out.println("Size: " + words[1] + "," + words[2]);
 						x = Integer.parseInt(words[1]);
 						y = Integer.parseInt(words[2]);
 					}
@@ -326,24 +327,34 @@ public class NewAgent implements Agent
 				System.err.println("strange percept that does not match pattern: " + percept);
 			}
 		}
-		Position pos = new Position(startX,startY);
+		Position pos = new Position(startX, startY);
 		State state = new State(pos, Orientation.valueOf(direction), true);
         hashMap.put(state.hashCode(), state);
-        BFSsearch(state);
+
+		initMap(dirts, obstacles, x, y, startX - 1, startY - 1);
+
+		BFSsearch(state);
         hashMap.get(1);
 		
-		initMap(dirts, obstacles, x, y, startX - 1, startY - 1);
 
     }
 
     public String nextAction(Collection<String> percepts) {
-    	
+
+		String per = "";
+
 		System.out.print("perceiving:");
 		for(String percept:percepts) {
 			System.out.print("'" + percept + "', ");
+			per = percept;
 		}
 		System.out.println("");
 		String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
+
+		for(String m : BFSMoves)
+		{
+			System.out.println("Move: " + m);
+		}
 
         String Action = BFSMoves.pop();
         if (Action.equals("TURN_ON"))
@@ -352,14 +363,13 @@ public class NewAgent implements Agent
             return actions[2];
         else if (Action.equals("TURN_LEFT"))
             return actions[3];
-        else if (Action.equals("GO"))
+        else if (Action.equals("GO") && per != "BUMP")
             return actions[4];
         else if (Action.equals("SUCK"))
-            return actions[4];
+            return actions[5];
+        else if (Action.equals("TURN_OFF"))
+			return actions[1];
         else
-            return actions[1];
-    	
-
-		
+        	return actions[4];
 	}
 }
