@@ -1,3 +1,5 @@
+package Prog1;
+
 import java.awt.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -163,9 +165,6 @@ public class NewAgent implements Agent
 
     private void insert(Node node, State state) {
 
-        if (state.position == null || state.orientation == null){
-            return;
-        }
         Position pos = stateGo(state);
         State LeftState = new State(state.position, stateLeft(state), true);
         State RightState = new State(state.position, stateRight(state), true);
@@ -177,6 +176,7 @@ public class NewAgent implements Agent
                 hashMap.put(CenterState.hashCode(), CenterState);
                 node.center = new Node(null, null, null, node, CenterState, "GO");
                 Frontier.add(node.center);
+                visited.add(node.center.getState());
             }
         }
 
@@ -186,6 +186,7 @@ public class NewAgent implements Agent
             Position Leftpos = stateGo(LeftState);
             if (!obstacles.contains(Leftpos))
                 Frontier.add(node.left);
+            	visited.add(node.left.getState());
         }
 
         if (!hashMap.containsValue(RightState)){
@@ -194,57 +195,58 @@ public class NewAgent implements Agent
             Position Rightpos = stateGo(RightState);
             if (!obstacles.contains(Rightpos))
                 Frontier.add(node.right);
+            	visited.add(node.right.getState());
         }
     }
 
 	public void BFSsearch(State Thestate)
 	{
 		root = new Node(null,null,null,null, Thestate, "");
-        counter = 0;
-		for(int i = 0; i < 5; i++){
-            BFSsearch(root);
-            hashMap = new HashMap<Integer, State>();
-
-
-        }
-        System.out.println(counter);
-        BFSMoves.push("TURN_ON");
-
+        BFSsearch(root);
 	}
 
 	private void BFSsearch(Node node)
 	{
-	    if (node == null)
-	        return;
-		Frontier.add(node);
+	    if(!visited.contains(node.getState()))
+	    	Frontier.add(node);
+	    	visited.add(node.getState());
 		if(Frontier.isEmpty())
         {
              return;
         }
 		if(dirts.contains(node.getState().position))
 		{
+			counter++;
 			System.out.println("Node State: " + node.getState().position);
 			System.out.println("Dirts pos: "  + dirts);
 			System.out.println("Obstacles pos: "  + obstacles);
             if(dirts.size() == initSizeOfDirts) {
                 BFSMoves.push("TURN_OFF");
-                root = null;
             }
-            else{
-                dirts.remove(node.getState().position);
-                BFSMoves.push("SUCK");
-                Node temp = node;
-                while(node.getParent() != root && node.getParent() != null)
-                {
-                    BFSMoves.push(node.getMove());
-                    System.out.println("Adding move: " + node.getMove() + " to BFSMoves");
-                    node = node.getParent();
-                }
-                root = temp;
+          
+            dirts.remove(node.getState().position);
+            BFSMoves.push("SUCK");
+            Node temp = node;
+            while(node.getParent() != root && node.getParent() != null)
+            {
+                BFSMoves.push(node.getMove());
+                System.out.println("Adding move: " + node.getMove() + " to BFSMoves");
+                node = node.getParent();
             }
-
-		}
-
+            root = temp;
+            if(!dirts.isEmpty())
+            {
+            	Frontier.clear();
+            	hashMap.clear();
+            	visited.clear();
+            	BFSsearch(root.getState());
+            }
+            else
+            {
+                BFSMoves.push("TURN_ON");
+                return;
+            }
+        }
 		else {
             Node N = Frontier.poll();
             State S = N.getState();
@@ -366,8 +368,7 @@ public class NewAgent implements Agent
 		System.out.println("");
 		String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
 
-
-		BFSMoves = BFSMoves;
+		System.out.println(BFSMoves);
         String Action = BFSMoves.pop();
         System.out.println(Action);
         if (Action.equals("TURN_ON"))
@@ -384,3 +385,4 @@ public class NewAgent implements Agent
 			return actions[1];
 	}
 }
+//[TURN_OFF, SUCK, GO, GO, GO, SUCK, GO, TURN_LEFT, GO, SUCK, GO, GO, TURN_RIGHT, SUCK, GO, TURN_LEFT, GO, SUCK, GO, TURN_RIGHT, GO, GO, GO, TURN_LEFT, GO, GO, TURN_LEFT, GO, TURN_RIGHT, GO, TURN_ON]
