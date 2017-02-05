@@ -224,7 +224,9 @@ public class NewAgent implements Agent
 			dirts = dirts;
 			node = node;
 
-            dirts.remove(node.getState().position);
+            
+			dirts.remove(node.getState().position);
+			
             Node temp = node;
 			BFSMoves.add("SUCK");
             while(node.getParent() != null)
@@ -247,6 +249,10 @@ public class NewAgent implements Agent
 				hashMap = new HashMap<>();
             	BFSsearch(temp);
             }
+            else{
+            	MyFinalList.add(BFSMoves);
+            }
+            
         }
 		else {
             Node N = Frontier.poll();
