@@ -219,17 +219,21 @@ public class NewAgent implements Agent
 			System.out.println("Node State: " + node.getState().position);
 			System.out.println("Dirts pos: "  + dirts);
 			System.out.println("Obstacles pos: "  + obstacles);
-          
+
+
+			dirts = dirts;
+			node = node;
+
             dirts.remove(node.getState().position);
             Node temp = node;
 			BFSMoves.add("SUCK");
-            while(node.getParent() != root && node.getParent() != null)
+            while(node.getParent() != null)
             {
                 BFSMoves.add(node.getMove());
                 System.out.println("Adding move: " + node.getMove() + " to BFSMoves");
                 node = node.getParent();
             }
-            BFSMoves.add(node.getMove());
+
             if(!dirts.isEmpty())
             {
 				MyFinalList.add(BFSMoves);
@@ -239,7 +243,7 @@ public class NewAgent implements Agent
 				temp.left = null;
 				temp.right = null;
 				temp.center = null;
-				visited.clear();
+				visited = new  ArrayList<>();
 				hashMap = new HashMap<>();
             	BFSsearch(temp);
             }
@@ -370,6 +374,7 @@ public class NewAgent implements Agent
 		System.out.println("");
 		String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
 
+		System.out.println(Commands);
         String Action = Commands.remove(0);
         System.out.println(Action);
         if (Action.equals("TURN_ON"))

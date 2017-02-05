@@ -4,8 +4,8 @@ public class Node
 	public Node center;
 	public Node right;
 	public Node parent;
-	private State state;
-	private String move;
+	public State state;
+	public String move;
 	
 	public Node(Node left, Node center, Node right, Node parent, State state, String move)
 	{
