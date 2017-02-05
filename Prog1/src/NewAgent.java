@@ -23,6 +23,7 @@ public class NewAgent implements Agent
     private ArrayList<Stack<String>> MyList = new ArrayList<>();
 	private ArrayList<String> Commands = new ArrayList<>();
 	private ArrayList<ArrayList<String>> MyFinalList = new ArrayList<>();
+	private boolean noDirts = false;
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
 	*/
@@ -228,7 +229,8 @@ public class NewAgent implements Agent
 			dirts.remove(node.getState().position);
 			
             Node temp = node;
-			BFSMoves.add("SUCK");
+            if(!noDirts)
+				BFSMoves.add("SUCK");
             while(node.getParent() != null)
             {
                 BFSMoves.add(node.getMove());
@@ -249,10 +251,23 @@ public class NewAgent implements Agent
 				hashMap = new HashMap<>();
             	BFSsearch(temp);
             }
-            else{
-            	MyFinalList.add(BFSMoves);
-            }
-            
+            else {
+				noDirts = true;
+				MyFinalList.add(BFSMoves);
+				Position homePos = new Position(startX, startY);
+				if (!homePos.equals(temp.getState().position)) {
+					dirts.add(homePos);
+					BFSMoves = new ArrayList<>();
+					Frontier = new LinkedList<>();
+					temp.parent = null;
+					temp.left = null;
+					temp.right = null;
+					temp.center = null;
+					visited = new ArrayList<>();
+					hashMap = new HashMap<>();
+					BFSsearch(temp);
+				}
+			}
         }
 		else {
             Node N = Frontier.poll();
@@ -397,4 +412,3 @@ public class NewAgent implements Agent
 			return actions[1];
 	}
 }
-//[TURN_OFF, SUCK, GO, GO, GO, SUCK, GO, TURN_LEFT, GO, SUCK, GO, GO, TURN_RIGHT, SUCK, GO, TURN_LEFT, GO, SUCK, GO, TURN_RIGHT, GO, GO, GO, TURN_LEFT, GO, GO, TURN_LEFT, GO, TURN_RIGHT, GO, TURN_ON]
