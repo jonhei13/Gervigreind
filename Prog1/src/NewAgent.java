@@ -1,14 +1,10 @@
-package Prog1;
-
-
 import java.awt.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NewAgent implements Agent
-{	
-	private int counter = 0;
+{
 	private int cost = 0;
 	private int x;
 	private int y;
@@ -21,9 +17,10 @@ public class NewAgent implements Agent
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
 	private ArrayList<State> visited = new ArrayList<State>();
     private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
-    private Queue<Node> Frontier = new LinkedList<Node>();
     private Stack<String> BFSMoves = new Stack<String>();
+    private Queue<Node> Frontier = new LinkedList<>();
     private Node root;
+    private int counter;
 
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
@@ -166,6 +163,9 @@ public class NewAgent implements Agent
 
     private void insert(Node node, State state) {
 
+        if (state.position == null || state.orientation == null){
+            return;
+        }
         Position pos = stateGo(state);
         State LeftState = new State(state.position, stateLeft(state), true);
         State RightState = new State(state.position, stateRight(state), true);
@@ -200,40 +200,51 @@ public class NewAgent implements Agent
 	public void BFSsearch(State Thestate)
 	{
 		root = new Node(null,null,null,null, Thestate, "");
-        
-        BFSsearch(root);
+        counter = 0;
+		for(int i = 0; i < 5; i++){
+            BFSsearch(root);
+            hashMap = new HashMap<Integer, State>();
+
+
+        }
+        System.out.println(counter);
+        BFSMoves.push("TURN_ON");
+
 	}
 
 	private void BFSsearch(Node node)
 	{
+	    if (node == null)
+	        return;
 		Frontier.add(node);
-		
+		if(Frontier.isEmpty())
+        {
+             return;
+        }
 		if(dirts.contains(node.getState().position))
 		{
 			System.out.println("Node State: " + node.getState().position);
 			System.out.println("Dirts pos: "  + dirts);
 			System.out.println("Obstacles pos: "  + obstacles);
-            if(dirts.size() == initSizeOfDirts)
-            	BFSMoves.push("TURN_OFF");
-			dirts.remove(node.getState().position);
-            State rootState = node.getState();
-            BFSMoves.push("SUCK");
-            Frontier.clear();
-			while(node.getParent() != null)
-			{
-                BFSMoves.push(node.getMove());
-                System.out.println("Adding move: " + node.getMove() + " to BFSMoves");
-				node = node.getParent();
-			}
-			if(!dirts.isEmpty())
-				BFSsearch(rootState);
-			else
-				BFSMoves.push("TURN_ON");
+            if(dirts.size() == initSizeOfDirts) {
+                BFSMoves.push("TURN_OFF");
+                root = null;
+            }
+            else{
+                dirts.remove(node.getState().position);
+                BFSMoves.push("SUCK");
+                Node temp = node;
+                while(node.getParent() != root && node.getParent() != null)
+                {
+                    BFSMoves.push(node.getMove());
+                    System.out.println("Adding move: " + node.getMove() + " to BFSMoves");
+                    node = node.getParent();
+                }
+                root = temp;
+            }
+
 		}
-		else if(Frontier.isEmpty())
-		{
-			return;
-		}
+
 		else {
             Node N = Frontier.poll();
             State S = N.getState();
@@ -355,12 +366,10 @@ public class NewAgent implements Agent
 		System.out.println("");
 		String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
 
-		for(String m : BFSMoves)
-		{
-			System.out.println("Move: " + m);
-		}
 
+		BFSMoves = BFSMoves;
         String Action = BFSMoves.pop();
+        System.out.println(Action);
         if (Action.equals("TURN_ON"))
             return actions[0];
         else if (Action.equals("TURN_RIGHT"))
