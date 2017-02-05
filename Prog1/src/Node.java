@@ -3,7 +3,7 @@ public class Node
 	public Node left;
 	public Node center;
 	public Node right;
-	private Node parent;
+	public Node parent;
 	private State state;
 	private String move;
 	

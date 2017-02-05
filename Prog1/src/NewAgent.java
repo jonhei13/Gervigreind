@@ -1,5 +1,3 @@
-package Prog1;
-
 import java.awt.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -19,11 +17,12 @@ public class NewAgent implements Agent
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
 	private ArrayList<State> visited = new ArrayList<State>();
     private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
-    private Stack<String> BFSMoves = new Stack<String>();
+    private ArrayList<String> BFSMoves = new ArrayList<>();
     private Queue<Node> Frontier = new LinkedList<>();
     private Node root;
-    private int counter;
-
+    private ArrayList<Stack<String>> MyList = new ArrayList<>();
+	private ArrayList<String> Commands = new ArrayList<>();
+	private ArrayList<ArrayList<String>> MyFinalList = new ArrayList<>();
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
 	*/
@@ -207,44 +206,42 @@ public class NewAgent implements Agent
 
 	private void BFSsearch(Node node)
 	{
-	    if(!visited.contains(node.getState()))
-	    	Frontier.add(node);
-	    	visited.add(node.getState());
+	    if(!visited.contains(node.getState())) {
+			Frontier.add(node);
+			visited.add(node.getState());
+		}
 		if(Frontier.isEmpty())
         {
              return;
         }
 		if(dirts.contains(node.getState().position))
 		{
-			counter++;
 			System.out.println("Node State: " + node.getState().position);
 			System.out.println("Dirts pos: "  + dirts);
 			System.out.println("Obstacles pos: "  + obstacles);
-            if(dirts.size() == initSizeOfDirts) {
-                BFSMoves.push("TURN_OFF");
-            }
           
             dirts.remove(node.getState().position);
-            BFSMoves.push("SUCK");
             Node temp = node;
+			BFSMoves.add("SUCK");
             while(node.getParent() != root && node.getParent() != null)
             {
-                BFSMoves.push(node.getMove());
+                BFSMoves.add(node.getMove());
                 System.out.println("Adding move: " + node.getMove() + " to BFSMoves");
                 node = node.getParent();
             }
-            root = temp;
+            BFSMoves.add(node.getMove());
             if(!dirts.isEmpty())
             {
-            	Frontier.clear();
-            	hashMap.clear();
-            	visited.clear();
-            	BFSsearch(root.getState());
-            }
-            else
-            {
-                BFSMoves.push("TURN_ON");
-                return;
+				MyFinalList.add(BFSMoves);
+				BFSMoves = new ArrayList<>();
+				Frontier = new LinkedList<>();
+				temp.parent = null;
+				temp.left = null;
+				temp.right = null;
+				temp.center = null;
+				visited.clear();
+				hashMap = new HashMap<>();
+            	BFSsearch(temp);
             }
         }
 		else {
@@ -351,9 +348,14 @@ public class NewAgent implements Agent
 
 		BFSsearch(state);
         hashMap.get(1);
-        
-		
 
+		for (int i = 0; i < MyFinalList.size();i++){
+			for(int k = MyFinalList.get(i).size()-1; k >= 0 ; k--){
+				Commands.add(MyFinalList.get(i).get(k));
+			}
+		}
+		Commands.add(0, "TURN_ON");
+		Commands.add(Commands.size(), "TURN_OFF");
     }
 
     public String nextAction(Collection<String> percepts) {
@@ -368,8 +370,7 @@ public class NewAgent implements Agent
 		System.out.println("");
 		String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
 
-		System.out.println(BFSMoves);
-        String Action = BFSMoves.pop();
+        String Action = Commands.remove(0);
         System.out.println(Action);
         if (Action.equals("TURN_ON"))
             return actions[0];
