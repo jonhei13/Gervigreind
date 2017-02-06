@@ -16,7 +16,11 @@ public class Node
 		this.state = state;
 		this.move = move;
 		this.center = center;
-		this.cost = 1;
+		if(parent != null){
+			this.cost = parent.cost+1;
+			System.out.println(this.cost);}
+		else
+			this.cost = 0;
 	}
 	public Node getParent()
 	{

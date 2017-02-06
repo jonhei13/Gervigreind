@@ -206,6 +206,7 @@ public class NewAgent implements Agent
 			State RightState = new State(state.position, stateRight(state), true);
 			node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
 			node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
+			System.out.println(RightState.position);
 
 			Frontier.push(node.left);
 			Frontier.push(node.right);
@@ -346,53 +347,76 @@ public class NewAgent implements Agent
 	}
 	
 	public void UcSearch(State Thestate){
-		HashMap<Node, Integer> Frontier = new HashMap<Node, Integer>(); //Node and cost to node.
+		ArrayList<Node> Frontier = new ArrayList<>();
 		Node node = new Node(null,null,null,null, Thestate, "");
-		Frontier.put(node, 0);
-		UcSearch(node, Frontier);
+		Frontier.add(node);
+		UcSearch(Frontier);
 	}
 	
-	private void UcSearch(Node node, HashMap<Node, Integer> Frontier){
-		currNode = node;
+	private void UcSearch(ArrayList<Node> Frontier){
+		//currNode = node;
 		Position homePos = new Position(startX, startY);
 		ArrayList<Node> explored = new ArrayList<>();
 		
 		while(!Frontier.isEmpty()) {
+			currNode = Frontier.remove(Frontier.size()-1);
+			//System.out.println(currNode.getMove());
 			if((currNode.state.position).equals(homePos) && dirts.isEmpty()){
-				//TODO
-			}
-			explored.add(currNode);
-			
-			if (dirts.contains(currNode.getState().position)) {
-				dirts.remove(currNode.getState().position);
-				State Thestate = currNode.state;
-				if (!noDirts)
-					Moves.add("SUCK");
 				while (currNode.getParent() != null) {
 					Moves.add(currNode.getMove());
 					currNode = currNode.getParent();
 				}
-				if (!dirts.isEmpty()) {
-					MyFinalList.add(Moves);
-					Moves = new ArrayList<>();
-					hashMap = new HashMap<>();
-					BFSsearch(Thestate);
-				} else {
-					noDirts = true;
-					MyFinalList.add(Moves);
-					if (!homePos.equals(Thestate.position)) {
-						dirts.add(homePos);
-						Moves = new ArrayList<>();
-						hashMap = new HashMap<>();
-						BFSsearch(Thestate);
-					}
-				}
-			} else {
-				currNode = Frontier.pop();
-				State S = currNode.getState();
-				Frontier = insertDFS(currNode, S, Frontier);
+				MyFinalList.add(Moves);
+				break;
+			}
+			
+			if (dirts.contains(currNode.getState().position)) {
+				dirts.remove(currNode.getState().position);
+				Moves.add("SUCK");
+				currNode.setCost(currNode.getCost()+1);
+			}
+			
+			State currState = currNode.getState();
+			Position goPos = stateGo(currState);
+			
+			if (!obstacles.contains(goPos)) {
+				State CenterState = new State(goPos, currState.orientation, true);
+				currNode.center = new Node(null, null, null, currNode, CenterState, "GO");
+			}
+			
+			State RightState = new State(currState.position, stateRight(currState), true);	
+			currNode.right = new Node(null, null, null, currNode, RightState, "TURN_RIGHT");
+			System.out.println(RightState.position);
+			State LeftState = new State(currState.position, stateLeft(currState), true);
+			currNode.left = new Node(null, null, null, currNode, LeftState, "TURN_LEFT");
+			explored.add(currNode);
+			
+			
+			if(!explored.contains(currNode.left)){
+				Frontier = UcsFrontierInsert(Frontier, currNode.left);
+			}
+			
+			if(!explored.contains(currNode.right)){
+				Frontier = UcsFrontierInsert(Frontier, currNode.right);
+			}
+			
+			if(currNode.center != null && !explored.contains(currNode.center)){
+				Frontier = UcsFrontierInsert(Frontier, currNode.center);
 			}
 		}
+	}
+	
+	public ArrayList<Node> UcsFrontierInsert(ArrayList<Node> Frontier, Node node){
+		if(!Frontier.contains(node)){
+			Frontier.add(node);
+		}
+		else{
+			int indx = Frontier.indexOf(node);
+			if(Frontier.get(indx).cost > node.cost){
+				Frontier.set(indx, node);
+			}
+		}
+		return Frontier;
 	}
 	
 	public void UcsCommands(){
@@ -515,7 +539,8 @@ public class NewAgent implements Agent
 			DfsCommands();
 		}
 		else if (search == "uniform") {
-
+			UcSearch(state);
+			UcsCommands();
 		}
 		else if (search == "A") {
 
