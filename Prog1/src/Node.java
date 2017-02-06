@@ -6,6 +6,7 @@ public class Node
 	public Node parent;
 	public State state;
 	public String move;
+	public int cost;
 	
 	public Node(Node left, Node center, Node right, Node parent, State state, String move)
 	{
@@ -15,6 +16,11 @@ public class Node
 		this.state = state;
 		this.move = move;
 		this.center = center;
+		if(parent != null){
+			this.cost = parent.cost+1;
+			System.out.println(this.cost);}
+		else
+			this.cost = 0;
 	}
 	public Node getParent()
 	{
@@ -39,5 +45,15 @@ public class Node
 	public Node getcenter()
 	{
 		return this.center;
+	}
+	
+	public int getCost()
+	{
+		return this.cost;
+	}
+	
+	public void setCost(int newCost)
+	{
+		this.cost = newCost;
 	}
 }
