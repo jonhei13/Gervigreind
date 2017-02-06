@@ -1,6 +1,7 @@
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.awt.*;
+import java.nio.file.StandardWatchEventKinds;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -164,7 +165,7 @@ public class NewAgent implements Agent
 		}
 	}
 
-    private Queue<Node> insert(Node node, State state, Queue<Node> Frontier) {
+    private Queue<Node> insertBFS(Node node, State state, Queue<Node> Frontier) {
 
         Position pos = stateGo(state);
 		if (!hashMap.containsValue(state)) {
@@ -187,6 +188,29 @@ public class NewAgent implements Agent
 	//	}
         return Frontier;
 	}
+    private Stack<Node> insertDFS(Node node, State state, Stack<Node> Frontier) {
+
+        Position pos = stateGo(state);
+        if (!hashMap.containsValue(state)) {
+            if (!obstacles.contains(pos)) {
+                State CenterState = new State(pos, state.orientation, true);
+                node.center = new Node(null, null, null, node, CenterState, "GO");
+                Frontier.push(node.center);
+            }
+            State LeftState = new State(state.position, stateLeft(state), true);
+            State RightState = new State(state.position, stateRight(state), true);
+            node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
+            node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
+
+            Frontier.push(node.left);
+            Frontier.push(node.right);
+        }
+
+        hashMap.put(state.hashCode(), node.getState());
+
+        //	}
+        return Frontier;
+    }
 
 	public void BFSsearch(State Thestate)
 	{
@@ -194,14 +218,7 @@ public class NewAgent implements Agent
 		Node node = new Node(null,null,null,null, Thestate, "");
 		Frontier.add(node);
         BFSsearch(node,Frontier);
-	}
-	public void DFSsearch(State Thestate)
-    {
-        Queue<Node> Frontier = new LinkedList<>();
-        Node node = new Node(null,null,null,null, Thestate, "");
-        Frontier.add(node);
-    }
-
+}
 	private void BFSsearch(Node node,Queue<Node> Frontier)
 	{
 		currNode = node;
@@ -242,10 +259,60 @@ public class NewAgent implements Agent
 			else {
 				currNode = Frontier.poll();
 				State S = currNode.getState();
-				Frontier = insert(currNode, S, Frontier);
+				Frontier = insertBFS(currNode, S, Frontier);
 			}
 		}
 	}
+    public void DFSsearch(State Thestate)
+    {
+        Stack<Node> Frontier = new Stack<>();
+        Node node = new Node(null,null,null,null, Thestate, "");
+        Frontier.push(node);
+        DFSsearch(node, Frontier);
+    }
+    private void DFSsearch(Node node, Stack<Node> Frontier)
+    {
+        currNode = node;
+        while(!Frontier.isEmpty())
+        {
+            if (dirts.contains(currNode.getState().position)) {
+                dirts.remove(currNode.getState().position);
+                State Thestate = currNode.state;
+                if (!noDirts)
+                    BFSMoves.add("SUCK");
+                while (currNode.getParent() != null) {
+                    BFSMoves.add(currNode.getMove());
+                    currNode = currNode.getParent();
+                }
+
+                if (!dirts.isEmpty()) {
+                    MyFinalList.add(BFSMoves);
+                    BFSMoves = new ArrayList<>();
+                    hashMap = new HashMap<>();
+                    BFSsearch(Thestate);
+                } else {
+                    noDirts = true;
+                    MyFinalList.add(BFSMoves);
+                    Position homePos = new Position(startX, startY);
+                    if (!homePos.equals(Thestate.position)) {
+                        dirts.add(homePos);
+                        BFSMoves = new ArrayList<>();
+                        hashMap = new HashMap<>();
+                        BFSsearch(Thestate);
+                    }
+                }
+            }
+            else {
+                currNode = Frontier.pop();
+                State S = currNode.getState();
+                Frontier = insertDFS(currNode, S, Frontier);
+            }
+        }
+
+
+
+    }
+
 
     public void init(Collection<String> percepts) {
 		/*
@@ -339,7 +406,7 @@ public class NewAgent implements Agent
 		State state = new State(pos, Orientation.valueOf(direction), true);
 		initMap(dirts, obstacles, x, y, startX - 1, startY - 1);
 
-		BFSsearch(state);
+		DFSsearch(state);
         hashMap.get(1);
 
 		for (int i = 0; i < MyFinalList.size();i++){
