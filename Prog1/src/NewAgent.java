@@ -87,6 +87,19 @@ public class NewAgent implements Agent
 		}
 	}
 
+	public void turnThreeTimes(Node node) {
+		if(node.parent.parent != null) {
+			Node newNode = node.parent.parent;
+
+			if (newNode.right.right == node) {
+				hashMap.put(node.state.hashCode(), node.state);
+			}
+			else if (newNode.left.left == node) {
+				hashMap.put(node.state.hashCode(), node.state);
+			}
+		}
+	}
+
 	private Queue<Node> insertBFS(Node node, State state, Queue<Node> Frontier) {
 		Position pos = stateGo(state);
 		if (!hashMap.containsValue(state)) {
@@ -111,6 +124,8 @@ public class NewAgent implements Agent
 
 	private LinkedList<Node> insertDFS(Node node, State state, LinkedList<Node> Frontier) {
 		Position pos = stateGo(state);
+		try{turnThreeTimes(node);}
+		catch(Exception e){}
 		if (!hashMap.containsValue(state)) {
 			if (!obstacles.contains(pos)) {
 				State CenterState = new State(pos, state.orientation, true);
