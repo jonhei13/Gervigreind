@@ -345,16 +345,16 @@ public class NewAgent implements Agent
 	}
 	
 	public void UcSearch(State Thestate){
-		ArrayList<Node> Frontier = new ArrayList<>();
+		LinkedList<Node> Frontier = new LinkedList<>();
 		Node node = new Node(null,null,null,null, Thestate, "");
 		Frontier.add(node);
 		UcSearch(Frontier);
 	}
 	
-	private void UcSearch(ArrayList<Node> Frontier){
+	private void UcSearch(LinkedList<Node> Frontier){
 		//currNode = node;
 		Position homePos = new Position(startX, startY);
-		ArrayList<Node> explored = new ArrayList<>();
+		LinkedList<Node> explored = new LinkedList<>();
 		
 		while(!Frontier.isEmpty()) {
 			Node currNode = Frontier.remove(Frontier.size()-1);
@@ -413,7 +413,7 @@ public class NewAgent implements Agent
 		System.out.println("empty frontier");
 	}
 	
-	public ArrayList<Node> UcsFrontierInsert(ArrayList<Node> Frontier, Node n){
+	public LinkedList<Node> UcsFrontierInsert(LinkedList<Node> Frontier, Node n){
 		if(!Frontier.contains(n)){
 			Frontier.add(n);
 		}
