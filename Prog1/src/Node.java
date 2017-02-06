@@ -18,7 +18,8 @@ public class Node
 		this.center = center;
 		if(parent != null){
 			this.cost = parent.cost+1;
-			System.out.println(this.cost);}
+			//System.out.println(this.cost)
+		}
 		else
 			this.cost = 0;
 	}
@@ -55,5 +56,10 @@ public class Node
 	public void setCost(int newCost)
 	{
 		this.cost = newCost;
+	}
+	
+	public boolean equals(Object o){
+		Node n = (Node) o;
+		return this.state.equals(n.state) && this.move.equals(n.move);
 	}
 }
