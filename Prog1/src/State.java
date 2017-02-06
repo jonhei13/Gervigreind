@@ -26,38 +26,8 @@ public class State {
 				&& this.turned_on == s.turned_on;
 	}
 	public int hashCode() {
-		int hash;
-		Orientation[] o = Orientation.values();
-		if(this.orientation == o[0])
-		{
-			hash = 1298617 ;
-		}
+        return (position.hashCode() * 1221) ^ (orientation.
+                hashCode() * 4512321) ^ (turned_on ? 5231 : 18307);
 
-		else if(this.orientation == o[1])
-		{
-			hash = 1298641 ;
-		}
-
-		else if(this.orientation == o[1])
-		{
-			hash = 1298651 ;
-		}
-
-		else
-		{
-			hash = 1298653 ;
-		}
-
-		if(this.turned_on)
-			hash = hash * 1299457;
-		else{
-			hash = hash * 15485849;
-		}
-
-		hash = hash*this.position.x^this.position.y;
-		hash = hash*this.position.y^this.position.x;
-		return hash;
-	}
-
-
+    }
 }

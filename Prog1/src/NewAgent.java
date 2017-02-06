@@ -1,3 +1,5 @@
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+
 import java.awt.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -15,7 +17,6 @@ public class NewAgent implements Agent
 	private int initSizeOfDirts = 0;
 	private ArrayList<Position> dirts = new ArrayList<Position>();
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
-	private ArrayList<State> visited = new ArrayList<State>();
     private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
     private ArrayList<String> BFSMoves = new ArrayList<>();
     private Queue<Node> Frontier = new LinkedList<>();
@@ -166,50 +167,36 @@ public class NewAgent implements Agent
     private void insert(Node node, State state) {
 
         Position pos = stateGo(state);
-        State LeftState = new State(state.position, stateLeft(state), true);
-        State RightState = new State(state.position, stateRight(state), true);
-
-        if (!obstacles.contains(pos)) {
-            State CenterState = new State(pos, state.orientation, true);
-            if (!hashMap.containsValue(CenterState)){
-                hashMap.put(CenterState.hashCode(), CenterState);
-                node.center = new Node(null, null, null, node, CenterState, "GO");
-				if (!visited.contains(node.getState())) {
+		if (!hashMap.containsValue(state)) {
+			if (!obstacles.contains(pos)) {
+				State CenterState = new State(pos, state.orientation, true);
+					node.center = new Node(null, null, null, node, CenterState, "GO");
 					Frontier.add(node.center);
-				}
-            }
-        }
-
-        if (!hashMap.containsValue(LeftState)){
-            hashMap.put(LeftState.hashCode(), LeftState);
-            node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
-			if (!visited.contains(node.getState())) {
-				Frontier.add(node.left);
 			}
-        }
+			else{
+				State LeftState = new State(state.position, stateLeft(state), true);
+				State RightState = new State(state.position, stateRight(state), true);
+				node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
+				node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
 
-        if (!hashMap.containsValue(RightState)){
-            hashMap.put(RightState.hashCode(), RightState);
-            node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
-			if (!visited.contains(node.getState())) {
+				Frontier.add(node.left);
 				Frontier.add(node.right);
 			}
-        }
-        visited.add(node.getState());
-    }
+
+			hashMap.put(state.hashCode(), node.getState());
+
+	//	}
+	}
 
 	public void BFSsearch(State Thestate)
 	{
 		root = new Node(null,null,null,null, Thestate, "");
+		Frontier.add(root);
         BFSsearch(root);
 	}
 
 	private void BFSsearch(Node node)
 	{
-
-	    if(!visited.contains(node.getState())) {
-			Frontier.add(node);
-		}
 		if(Frontier.isEmpty())
         {
              return;
@@ -220,14 +207,9 @@ public class NewAgent implements Agent
 			System.out.println("Dirts pos: "  + dirts);
 			System.out.println("Obstacles pos: "  + obstacles);
 
-
-			dirts = dirts;
-			node = node;
-
-            
 			dirts.remove(node.getState().position);
-			
-            Node temp = node;
+			State Thestate = node.state;
+			Node temp = new Node(null,null,null,null, Thestate, "");
             if(!noDirts)
 				BFSMoves.add("SUCK");
             while(node.getParent() != null)
@@ -236,18 +218,16 @@ public class NewAgent implements Agent
                 System.out.println("Adding move: " + node.getMove() + " to BFSMoves");
                 node = node.getParent();
             }
+            node = null;
 
             if(!dirts.isEmpty())
             {
+				Frontier = Frontier;
 				MyFinalList.add(BFSMoves);
 				BFSMoves = new ArrayList<>();
 				Frontier = new LinkedList<>();
-				temp.parent = null;
-				temp.left = null;
-				temp.right = null;
-				temp.center = null;
-				visited = new  ArrayList<>();
 				hashMap = new HashMap<>();
+				Frontier.add(temp);
             	BFSsearch(temp);
             }
             else {
@@ -258,23 +238,27 @@ public class NewAgent implements Agent
 						dirts.add(homePos);
 						BFSMoves = new ArrayList<>();
 						Frontier = new LinkedList<>();
-						temp.parent = null;
-						temp.left = null;
-					temp.right = null;
-					temp.center = null;
-					visited = new ArrayList<>();
-					hashMap = new HashMap<>();
-					BFSsearch(temp);
+						hashMap = new HashMap<>();
+						Frontier.add(temp);
+						BFSsearch(temp);
 				}
 			}
         }
 		else {
-
 			Node N = Frontier.poll();
             State S = N.getState();
-            insert(N, S);
-            BFSsearch(N);
-        }
+			while(hashMap.containsValue(S) && !Frontier.isEmpty()){
+				if (Frontier.isEmpty())
+					return;
+				else{
+					N = Frontier.poll();
+					S = N.getState();
+					break;
+				}
+			}
+			insert(N, S);
+			BFSsearch(N);
+			}
 	}
 
     public void init(Collection<String> percepts) {
@@ -367,8 +351,6 @@ public class NewAgent implements Agent
 		}
 		Position pos = new Position(startX, startY);
 		State state = new State(pos, Orientation.valueOf(direction), true);
-        hashMap.put(state.hashCode(), state);
-
 		initMap(dirts, obstacles, x, y, startX - 1, startY - 1);
 
 		BFSsearch(state);
