@@ -19,7 +19,6 @@ public class NewAgent implements Agent
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
     private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
     private ArrayList<String> BFSMoves = new ArrayList<>();
-    private Queue<Node> Frontier = new LinkedList<>();
     private Node root;
     private ArrayList<Stack<String>> MyList = new ArrayList<>();
 	private ArrayList<String> Commands = new ArrayList<>();
@@ -165,7 +164,7 @@ public class NewAgent implements Agent
 		}
 	}
 
-    private void insert(Node node, State state) {
+    private Queue<Node> insert(Node node, State state, Queue<Node> Frontier) {
 
         Position pos = stateGo(state);
 		if (!hashMap.containsValue(state)) {
@@ -186,16 +185,24 @@ public class NewAgent implements Agent
 			hashMap.put(state.hashCode(), node.getState());
 
 	//	}
+        return Frontier;
 	}
 
 	public void BFSsearch(State Thestate)
 	{
+        Queue<Node> Frontier = new LinkedList<>();
 		Node node = new Node(null,null,null,null, Thestate, "");
 		Frontier.add(node);
-        BFSsearch(node);
+        BFSsearch(node,Frontier);
 	}
+	public void DFSsearch(State Thestate)
+    {
+        Queue<Node> Frontier = new LinkedList<>();
+        Node node = new Node(null,null,null,null, Thestate, "");
+        Frontier.add(node);
+    }
 
-	private void BFSsearch(Node node)
+	private void BFSsearch(Node node,Queue<Node> Frontier)
 	{
 		currNode = node;
 		while(!Frontier.isEmpty())
@@ -214,13 +221,10 @@ public class NewAgent implements Agent
 					System.out.println("Adding move: " + currNode.getMove() + " to BFSMoves");
 					currNode = currNode.getParent();
 				}
-				currNode = null;
 
 				if (!dirts.isEmpty()) {
-					Frontier = Frontier;
 					MyFinalList.add(BFSMoves);
 					BFSMoves = new ArrayList<>();
-					Frontier = new LinkedList<>();
 					hashMap = new HashMap<>();
 					BFSsearch(Thestate);
 				} else {
@@ -230,18 +234,15 @@ public class NewAgent implements Agent
 					if (!homePos.equals(Thestate.position)) {
 						dirts.add(homePos);
 						BFSMoves = new ArrayList<>();
-						Frontier = new LinkedList<>();
 						hashMap = new HashMap<>();
 						BFSsearch(Thestate);
 					}
-					else
-						break;
 				}
 			}
 			else {
 				currNode = Frontier.poll();
 				State S = currNode.getState();
-				insert(currNode, S);
+				Frontier = insert(currNode, S, Frontier);
 			}
 		}
 	}
