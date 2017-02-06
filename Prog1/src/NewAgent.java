@@ -363,10 +363,10 @@ public class NewAgent implements Agent
 			//System.out.println(currNode);
 			System.out.println(currNode.move + " " + currNode.state.position + " " + currNode.cost);
 			
-			if((currNode.state.position).equals(homePos) && dirts.isEmpty()){
+			if(dirts.isEmpty()){
+				System.out.println("empty dirts");
 				while (currNode.getParent() != null) {
 					if (dirts.contains(currNode.getState().position)) {
-						dirts.remove(currNode.getState().position);
 						Moves.add("SUCK");
 					}
 					System.out.println(currNode.getMove());
@@ -378,6 +378,7 @@ public class NewAgent implements Agent
 			}
 			
 			if (dirts.contains(currNode.getState().position)) {
+				dirts.remove(currNode.getState().position);
 				currNode.setCost(currNode.getCost()+1);
 			}
 			
@@ -409,10 +410,9 @@ public class NewAgent implements Agent
 			
 			if(!explored.contains(currNode.right)){
 				Frontier = UcsFrontierInsert(Frontier, currNode.right);
-			}
-			
-			
+			}	
 		}
+		System.out.println("empty frontier");
 	}
 	
 	public ArrayList<Node> UcsFrontierInsert(ArrayList<Node> Frontier, Node n){
