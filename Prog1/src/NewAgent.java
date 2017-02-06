@@ -214,10 +214,8 @@ public class NewAgent implements Agent
 					System.out.println("Adding move: " + currNode.getMove() + " to BFSMoves");
 					currNode = currNode.getParent();
 				}
-				currNode = null;
 
 				if (!dirts.isEmpty()) {
-					Frontier = Frontier;
 					MyFinalList.add(BFSMoves);
 					BFSMoves = new ArrayList<>();
 					Frontier = new LinkedList<>();
@@ -234,8 +232,7 @@ public class NewAgent implements Agent
 						hashMap = new HashMap<>();
 						BFSsearch(Thestate);
 					}
-					else
-						break;
+					break;
 				}
 			}
 			else {
