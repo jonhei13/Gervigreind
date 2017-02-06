@@ -1,5 +1,7 @@
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
+import com.sun.xml.internal.bind.v2.TODO;
+
 import java.awt.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -344,15 +346,61 @@ public class NewAgent implements Agent
 	}
 	
 	public void UcSearch(State Thestate){
-		;
+		HashMap<Node, Integer> Frontier = new HashMap<Node, Integer>(); //Node and cost to node.
+		Node node = new Node(null,null,null,null, Thestate, "");
+		Frontier.put(node, 0);
+		UcSearch(node, Frontier);
 	}
 	
-	private void UcSearch(Node node, Stack<Node> Frontier){
-		;
+	private void UcSearch(Node node, HashMap<Node, Integer> Frontier){
+		currNode = node;
+		Position homePos = new Position(startX, startY);
+		ArrayList<Node> explored = new ArrayList<>();
+		
+		while(!Frontier.isEmpty()) {
+			if((currNode.state.position).equals(homePos) && dirts.isEmpty()){
+				//TODO
+			}
+			explored.add(currNode);
+			
+			if (dirts.contains(currNode.getState().position)) {
+				dirts.remove(currNode.getState().position);
+				State Thestate = currNode.state;
+				if (!noDirts)
+					Moves.add("SUCK");
+				while (currNode.getParent() != null) {
+					Moves.add(currNode.getMove());
+					currNode = currNode.getParent();
+				}
+				if (!dirts.isEmpty()) {
+					MyFinalList.add(Moves);
+					Moves = new ArrayList<>();
+					hashMap = new HashMap<>();
+					BFSsearch(Thestate);
+				} else {
+					noDirts = true;
+					MyFinalList.add(Moves);
+					if (!homePos.equals(Thestate.position)) {
+						dirts.add(homePos);
+						Moves = new ArrayList<>();
+						hashMap = new HashMap<>();
+						BFSsearch(Thestate);
+					}
+				}
+			} else {
+				currNode = Frontier.pop();
+				State S = currNode.getState();
+				Frontier = insertDFS(currNode, S, Frontier);
+			}
+		}
 	}
 	
 	public void UcsCommands(){
-		;
+		for (int i = 0; i < MyFinalList.size();i++){
+			for(int k = MyFinalList.get(i).size()-1; k >= 0 ; k--){
+				Commands.add(MyFinalList.get(i).get(k));
+			}
+		}
 	}
 	
     public void init(Collection<String> percepts) {
