@@ -342,6 +342,19 @@ public class NewAgent implements Agent
 			}
 		}
 	}
+	
+	public void UcSearch(State Thestate){
+		;
+	}
+	
+	private void UcSearch(Node node, Stack<Node> Frontier){
+		;
+	}
+	
+	public void UcsCommands(){
+		;
+	}
+	
     public void init(Collection<String> percepts) {
 		/*
 			et to turn it on.Possible percepts are:
