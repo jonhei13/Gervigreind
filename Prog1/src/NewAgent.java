@@ -1,7 +1,6 @@
 import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.awt.*;
-import java.nio.file.StandardWatchEventKinds;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +18,7 @@ public class NewAgent implements Agent
 	private ArrayList<Position> dirts = new ArrayList<Position>();
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
     private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
-    private ArrayList<String> BFSMoves = new ArrayList<>();
+    private ArrayList<String> Moves = new ArrayList<>();
     private Node root;
     private ArrayList<Stack<String>> MyList = new ArrayList<>();
 	private ArrayList<String> Commands = new ArrayList<>();
@@ -164,156 +163,185 @@ public class NewAgent implements Agent
 			return Orientation.SOUTH;
 		}
 	}
+	public boolean turnThreeTimes(Node node)
+	{
+		return true;
+	}
+	private Queue<Node> insertBFS(Node node, State state, Queue<Node> Frontier) {
 
-    private Queue<Node> insertBFS(Node node, State state, Queue<Node> Frontier) {
-
-        Position pos = stateGo(state);
+		Position pos = stateGo(state);
 		if (!hashMap.containsValue(state)) {
 			if (!obstacles.contains(pos)) {
 				State CenterState = new State(pos, state.orientation, true);
-					node.center = new Node(null, null, null, node, CenterState, "GO");
-					Frontier.add(node.center);
-            }
-            State LeftState = new State(state.position, stateLeft(state), true);
-            State RightState = new State(state.position, stateRight(state), true);
-            node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
-            node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
-
-            Frontier.add(node.left);
-            Frontier.add(node.right);
+				node.center = new Node(null, null, null, node, CenterState, "GO");
+				Frontier.add(node.center);
 			}
+			State LeftState = new State(state.position, stateLeft(state), true);
+			State RightState = new State(state.position, stateRight(state), true);
+			node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
+			node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
 
-			hashMap.put(state.hashCode(), node.getState());
+			Frontier.add(node.left);
+			Frontier.add(node.right);
+		}
 
-	//	}
-        return Frontier;
+		hashMap.put(state.hashCode(), node.getState());
+
+		//	}
+		return Frontier;
 	}
-    private Stack<Node> insertDFS(Node node, State state, Stack<Node> Frontier) {
 
-        Position pos = stateGo(state);
-        if (!hashMap.containsValue(state)) {
-            if (!obstacles.contains(pos)) {
-                State CenterState = new State(pos, state.orientation, true);
-                node.center = new Node(null, null, null, node, CenterState, "GO");
-                Frontier.push(node.center);
-            }
-            State LeftState = new State(state.position, stateLeft(state), true);
-            State RightState = new State(state.position, stateRight(state), true);
-            node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
-            node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
+	private Stack<Node> insertDFS(Node node, State state, Stack<Node> Frontier) {
 
-            Frontier.push(node.left);
-            Frontier.push(node.right);
-        }
+		Position pos = stateGo(state);
+		if (!hashMap.containsValue(state)) {
+			if (!obstacles.contains(pos)) {
+				State CenterState = new State(pos, state.orientation, true);
+				node.center = new Node(null, null, null, node, CenterState, "GO");
+				Frontier.push(node.center);
+			}
+			State LeftState = new State(state.position, stateLeft(state), true);
+			State RightState = new State(state.position, stateRight(state), true);
+			node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
+			node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
 
-        hashMap.put(state.hashCode(), node.getState());
+			Frontier.push(node.left);
+			Frontier.push(node.right);
+		}
 
-        //	}
-        return Frontier;
-    }
+		hashMap.put(state.hashCode(), node.getState());
+
+		//	}
+		return Frontier;
+	}
 
 	public void BFSsearch(State Thestate)
 	{
-        Queue<Node> Frontier = new LinkedList<>();
+		Queue<Node> Frontier = new LinkedList<>();
 		Node node = new Node(null,null,null,null, Thestate, "");
 		Frontier.add(node);
-        BFSsearch(node,Frontier);
-}
-	private void BFSsearch(Node node,Queue<Node> Frontier)
+		BFSsearch(node,Frontier);
+	}
+
+	private void BFSsearch(Node node, Queue<Node> Frontier)
 	{
 		currNode = node;
+		State Thestate = currNode.state;
 		while(!Frontier.isEmpty())
 		{
 			if (dirts.contains(currNode.getState().position)) {
-				System.out.println("Node State: " + currNode.getState().position);
-				System.out.println("Dirts pos: " + dirts);
-				System.out.println("Obstacles pos: " + obstacles);
-
+				Thestate = currNode.state;
 				dirts.remove(currNode.getState().position);
-				State Thestate = currNode.state;
+
 				if (!noDirts)
-					BFSMoves.add("SUCK");
+					Moves.add("SUCK");
 				while (currNode.getParent() != null) {
-					BFSMoves.add(currNode.getMove());
-					System.out.println("Adding move: " + currNode.getMove() + " to BFSMoves");
+					Moves.add(currNode.getMove());
 					currNode = currNode.getParent();
 				}
 
 				if (!dirts.isEmpty()) {
-					MyFinalList.add(BFSMoves);
-					BFSMoves = new ArrayList<>();
+					MyFinalList.add(Moves);
+					Moves = new ArrayList<>();
 					hashMap = new HashMap<>();
 					BFSsearch(Thestate);
-				} else {
+				}
+				else if(dirts.isEmpty() && !noDirts){
 					noDirts = true;
-					MyFinalList.add(BFSMoves);
+					MyFinalList.add(Moves);
 					Position homePos = new Position(startX, startY);
 					if (!homePos.equals(Thestate.position)) {
 						dirts.add(homePos);
-						BFSMoves = new ArrayList<>();
+						Moves = new ArrayList<>();
 						hashMap = new HashMap<>();
 						BFSsearch(Thestate);
 					}
 				}
+				else if(dirts.isEmpty() && noDirts){
+					MyFinalList.add(Moves);
+					break;
+				}
+				break;
 			}
 			else {
 				currNode = Frontier.poll();
 				State S = currNode.getState();
-				Frontier = insertBFS(currNode, S, Frontier);
+				insertBFS(currNode, S, Frontier);
+			}
+		}
+		if(Frontier.isEmpty()) {
+			noDirts = true;
+			MyFinalList.add(Moves);
+			dirts = new ArrayList<>();
+			Position homePos = new Position(startX, startY);
+			if (!homePos.equals(Thestate.position)) {
+				dirts.add(homePos);
+				Moves = new ArrayList<>();
+				hashMap = new HashMap<>();
+				BFSsearch(Thestate);
 			}
 		}
 	}
-    public void DFSsearch(State Thestate)
-    {
-        Stack<Node> Frontier = new Stack<>();
-        Node node = new Node(null,null,null,null, Thestate, "");
-        Frontier.push(node);
-        DFSsearch(node, Frontier);
-    }
-    private void DFSsearch(Node node, Stack<Node> Frontier)
-    {
-        currNode = node;
-        while(!Frontier.isEmpty())
-        {
-            if (dirts.contains(currNode.getState().position)) {
-                dirts.remove(currNode.getState().position);
-                State Thestate = currNode.state;
-                if (!noDirts)
-                    BFSMoves.add("SUCK");
-                while (currNode.getParent() != null) {
-                    BFSMoves.add(currNode.getMove());
-                    currNode = currNode.getParent();
-                }
+	public void BfsCommands()
+	{
+		for (int i = 0; i < MyFinalList.size();i++){
+			for(int k = MyFinalList.get(i).size()-1; k >= 0 ; k--){
+				Commands.add(MyFinalList.get(i).get(k));
+			}
+		}
+	}
+	public void DFSsearch(State Thestate)
+	{
+		Stack<Node> Frontier = new Stack<>();
+		Node node = new Node(null,null,null,null, Thestate, "");
+		Frontier.push(node);
+		DFSsearch(node, Frontier);
+	}
+	private void DFSsearch(Node node, Stack<Node> Frontier)
+	{
+		currNode = node;
+		while(!Frontier.isEmpty()) {
+			if (dirts.contains(currNode.getState().position)) {
+				dirts.remove(currNode.getState().position);
+				State Thestate = currNode.state;
+				if (!noDirts)
+					Moves.add("SUCK");
+				while (currNode.getParent() != null) {
+					Moves.add(currNode.getMove());
+					currNode = currNode.getParent();
+				}
 
-                if (!dirts.isEmpty()) {
-                    MyFinalList.add(BFSMoves);
-                    BFSMoves = new ArrayList<>();
-                    hashMap = new HashMap<>();
-                    BFSsearch(Thestate);
-                } else {
-                    noDirts = true;
-                    MyFinalList.add(BFSMoves);
-                    Position homePos = new Position(startX, startY);
-                    if (!homePos.equals(Thestate.position)) {
-                        dirts.add(homePos);
-                        BFSMoves = new ArrayList<>();
-                        hashMap = new HashMap<>();
-                        BFSsearch(Thestate);
-                    }
-                }
-            }
-            else {
-                currNode = Frontier.pop();
-                State S = currNode.getState();
-                Frontier = insertDFS(currNode, S, Frontier);
-            }
-        }
-
-
-
-    }
-
-
+				if (!dirts.isEmpty()) {
+					MyFinalList.add(Moves);
+					Moves = new ArrayList<>();
+					hashMap = new HashMap<>();
+					BFSsearch(Thestate);
+				} else {
+					noDirts = true;
+					MyFinalList.add(Moves);
+					Position homePos = new Position(startX, startY);
+					if (!homePos.equals(Thestate.position)) {
+						dirts.add(homePos);
+						Moves = new ArrayList<>();
+						hashMap = new HashMap<>();
+						BFSsearch(Thestate);
+					}
+				}
+			} else {
+				currNode = Frontier.pop();
+				State S = currNode.getState();
+				Frontier = insertDFS(currNode, S, Frontier);
+			}
+		}
+	}
+	public void DfsCommands()
+	{
+		for (int i = 0; i < MyFinalList.size();i++){
+			for(int k = MyFinalList.get(i).size()-1; k >= 0 ; k--){
+				Commands.add(MyFinalList.get(i).get(k));
+			}
+		}
+	}
     public void init(Collection<String> percepts) {
 		/*
 			et to turn it on.Possible percepts are:
@@ -402,21 +430,38 @@ public class NewAgent implements Agent
 				System.err.println("strange percept that does not match pattern: " + percept);
 			}
 		}
-		Position pos = new Position(startX, startY);
-		State state = new State(pos, Orientation.valueOf(direction), true);
 		initMap(dirts, obstacles, x, y, startX - 1, startY - 1);
 
-		DFSsearch(state);
-        hashMap.get(1);
+		//"bfs", "dfs", "uniform" or "A"
+		TypeOfSearch("dfs");
 
-		for (int i = 0; i < MyFinalList.size();i++){
-			for(int k = MyFinalList.get(i).size()-1; k >= 0 ; k--){
-				Commands.add(MyFinalList.get(i).get(k));
-			}
-		}
+
+
 		Commands.add(0, "TURN_ON");
 		Commands.add(Commands.size(), "TURN_OFF");
     }
+
+    public void TypeOfSearch(String search)
+	{
+		Position pos = new Position(startX, startY);
+		State state = new State(pos, Orientation.valueOf(direction), true);
+		if (search == "bfs") {
+			BFSsearch(state);
+			BfsCommands();
+		}
+		else if (search == "dfs") {
+			DFSsearch(state);
+			DfsCommands();
+		}
+		else if (search == "uniform") {
+
+		}
+		else if (search == "A") {
+
+		}
+		else
+			System.err.println(search + " is not a valid search.");
+	}
 
     public String nextAction(Collection<String> percepts) {
 
