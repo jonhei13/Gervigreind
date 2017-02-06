@@ -363,7 +363,7 @@ public class NewAgent implements Agent
 			//System.out.println(currNode);
 			System.out.println(currNode.move + " " + currNode.state.position + " " + currNode.cost);
 			
-			if(dirts.isEmpty()){
+			if(currNode.state.position.equals(homePos) && dirts.isEmpty()){
 				System.out.println("empty dirts");
 				while (currNode.getParent() != null) {
 					if (dirts.contains(currNode.getState().position)) {
