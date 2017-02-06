@@ -15,9 +15,9 @@ public class Position {
 		Position p = (Position)o;
 		return this.x == p.x && this.y == p.y;
 	}
+
 	public int hashCode() {
 		return ( x *21143) ^ ( y *45127) ;
-
 	}
 }
 

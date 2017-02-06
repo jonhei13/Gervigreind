@@ -8,8 +8,7 @@ public class Node
 	public String move;
 	public int cost;
 	
-	public Node(Node left, Node center, Node right, Node parent, State state, String move)
-	{
+	public Node(Node left, Node center, Node right, Node parent, State state, String move) {
 		this.left = left;
 		this.right = right;
 		this.parent = parent;
@@ -18,46 +17,15 @@ public class Node
 		this.center = center;
 		if(parent != null){
 			this.cost = parent.cost+1;
-			//System.out.println(this.cost)
 		}
 		else
 			this.cost = 0;
 	}
-	public Node getParent()
-	{
-		return parent;
-	}
-	public State getState()
-	{
+
+	public State getState() {
 		return state;
 	}
-	public String getMove()
-	{
-		return move;
-	}
-	public Node getleft()
-	{
-		return this.left;
-	}
-	public Node getright()
-	{
-		return this.right;
-	}
-	public Node getcenter()
-	{
-		return this.center;
-	}
-	
-	public int getCost()
-	{
-		return this.cost;
-	}
-	
-	public void setCost(int newCost)
-	{
-		this.cost = newCost;
-	}
-	
+
 	public boolean equals(Object o){
 		Node n = (Node) o;
 		return this.state.equals(n.state) && this.move.equals(n.move);

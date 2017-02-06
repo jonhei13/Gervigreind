@@ -9,111 +9,43 @@ import java.util.regex.Pattern;
 
 public class NewAgent implements Agent
 {
-	private int cost = 0;
+	//"bfs", "dfs" or "uniform"s
+	private String TYPEOFSEARCH = "dfs";
+
 	private int maxX;
 	private int maxY;
 	private int startX;
 	private int startY;
     private String direction;
-	private int[][] map;
-	private int initSizeOfDirts = 0;
 	private ArrayList<Position> dirts = new ArrayList<Position>();
 	private ArrayList<Position> obstacles = new ArrayList<Position>();
     private HashMap<Integer,State> hashMap = new HashMap<Integer, State>();
     private ArrayList<String> Moves = new ArrayList<>();
-    private Node root;
     private ArrayList<Stack<String>> MyList = new ArrayList<>();
 	private ArrayList<String> Commands = new ArrayList<>();
 	private ArrayList<ArrayList<String>> MyFinalList = new ArrayList<>();
 	private boolean noDirts = false;
+
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
 	*/
-	
-	public void initMap(ArrayList<Position> dirts, ArrayList<Position> obstacles, int xSize, int ySize, int sX, int sY)
-	{
-		map = new int[xSize][ySize];
-		
-		for(int i = 0; i < map.length; i++)
-		{
-			for(int j = 0; j < map[i].length; j++)
-			{
-				if(i == sX && j == sY)
-				{
-					map[i][j] = 5;
-				}
-				else
-				{
-					map[i][j] = 1;
-				}
-			}
-		}
 
-		for(Position dirt:dirts)
-		{
-			int x = dirt.x - 1;
-			int y = dirt.y - 1;
-		
-			//System.out.println(dirt + " - " + x + "," + y);
-			initSizeOfDirts++;
-			map[x][y] = 2;
-		}
-		
-		for(Position obstacle:obstacles)
-		{
-			int x = obstacle.x - 1;
-			int y = obstacle.y - 1;
-			
-			map[x][y] = 3;
-		}
-
-		for(int i = 0; i < map.length; i++)
-		{
-			for(int j = 0; j < map[i].length; j++)
-			{
-				System.out.print(map[i][j]);
-			}
-			System.out.println();
-		}
-	}
-	
-	public ArrayList<Position> getDirts()
-	{
-		return dirts;
-	}
-	
-	public ArrayList<Position> getObstacles()
-	{
-		return obstacles;
-	}
-
-
-	private Orientation stateLeft(State state)
-	{
-		if(state.orientation.equals(Orientation.NORTH))
-		{
-			//state.orientation = Orientation.WEST;
+	private Orientation stateLeft(State state) {
+		if(state.orientation.equals(Orientation.NORTH)) {
 			return Orientation.WEST;
 		}
-		else if(state.orientation.equals(Orientation.WEST))
-		{
-		//	state.orientation = Orientation.SOUTH;
+		else if(state.orientation.equals(Orientation.WEST)) {
 			return Orientation.SOUTH;
 		}
-		else if(state.orientation.equals(Orientation.SOUTH))
-		{
-		//	state.orientation = Orientation.EAST;
+		else if(state.orientation.equals(Orientation.SOUTH)) {
 			return Orientation.EAST;
 		}
-		else
-		{
-		//	state.orientation = Orientation.NORTH;
+		else {
 			return Orientation.NORTH;
 		}
 	}
 
-	private Position stateGo(State state)
-	{
+	private Position stateGo(State state) {
         int newX = state.position.x;
         int newY = state.position.y;
         if (state.orientation.equals(Orientation.NORTH)) {
@@ -138,38 +70,24 @@ public class NewAgent implements Agent
         }
         Position pos = new Position(newX, newY);
         return pos;
-
 	}
 
-	private Orientation stateRight(State state)
-	{
-		if(state.orientation.equals(Orientation.NORTH))
-		{
-		//	state.orientation = Orientation.EAST;
+	private Orientation stateRight(State state) {
+		if(state.orientation.equals(Orientation.NORTH)) {
 			return Orientation.EAST;
 		}
-		else if(state.orientation.equals(Orientation.WEST))
-		{
-		//	state.orientation = Orientation.NORTH;
+		else if(state.orientation.equals(Orientation.WEST)) {
 			return Orientation.NORTH;
 		}
-		else if(state.orientation.equals(Orientation.SOUTH))
-		{
-		//	state.orientation = Orientation.WEST;
+		else if(state.orientation.equals(Orientation.SOUTH)) {
 			return Orientation.WEST;
 		}
-		else
-		{
-			//state.orientation = Orientation.SOUTH;
+		else {
 			return Orientation.SOUTH;
 		}
 	}
-	public boolean turnThreeTimes(Node node)
-	{
-		return true;
-	}
-	private Queue<Node> insertBFS(Node node, State state, Queue<Node> Frontier) {
 
+	private Queue<Node> insertBFS(Node node, State state, Queue<Node> Frontier) {
 		Position pos = stateGo(state);
 		if (!hashMap.containsValue(state)) {
 			if (!obstacles.contains(pos)) {
@@ -186,14 +104,12 @@ public class NewAgent implements Agent
 			Frontier.add(node.right);
 		}
 
-		hashMap.put(state.hashCode(), node.getState());
+		hashMap.put(state.hashCode(), node.state);
 
-		//	}
 		return Frontier;
 	}
 
 	private LinkedList<Node> insertDFS(Node node, State state, LinkedList<Node> Frontier) {
-
 		Position pos = stateGo(state);
 		if (!hashMap.containsValue(state)) {
 			if (!obstacles.contains(pos)) {
@@ -210,35 +126,31 @@ public class NewAgent implements Agent
 			Frontier.push(node.right);
 		}
 
-		hashMap.put(state.hashCode(), node.getState());
+		hashMap.put(state.hashCode(), node.state);
 
-		//	}
 		return Frontier;
 	}
 
-	public void BFSsearch(State Thestate)
-	{
+	public void BFSsearch(State Thestate) {
 		Queue<Node> Frontier = new LinkedList<>();
 		Node node = new Node(null,null,null,null, Thestate, "");
 		Frontier.add(node);
 		BFSsearch(node,Frontier);
 	}
 
-	private void BFSsearch(Node node, Queue<Node> Frontier)
-	{
+	private void BFSsearch(Node node, Queue<Node> Frontier) {
 		Node currNode = node;
 		State Thestate = currNode.state;
-		while(!Frontier.isEmpty())
-		{
-			if (dirts.contains(currNode.getState().position)) {
+		while(!Frontier.isEmpty()) {
+			if (dirts.contains(currNode.state.position)) {
 				Thestate = currNode.state;
-				dirts.remove(currNode.getState().position);
+				dirts.remove(currNode.state.position);
 
 				if (!noDirts)
 					Moves.add("SUCK");
-				while (currNode.getParent() != null) {
-					Moves.add(currNode.getMove());
-					currNode = currNode.getParent();
+				while (currNode.parent != null) {
+					Moves.add(currNode.move);
+					currNode = currNode.parent;
 				}
 
 				if (!dirts.isEmpty()) {
@@ -266,7 +178,7 @@ public class NewAgent implements Agent
 			}
 			else {
 				currNode = Frontier.poll();
-				State S = currNode.getState();
+				State S = currNode.state;
 				insertBFS(currNode, S, Frontier);
 			}
 		}
@@ -283,34 +195,33 @@ public class NewAgent implements Agent
 			}
 		}
 	}
-	public void BfsCommands()
-	{
+
+	public void ConvertToCommands() {
 		for (int i = 0; i < MyFinalList.size();i++){
 			for(int k = MyFinalList.get(i).size()-1; k >= 0 ; k--){
 				Commands.add(MyFinalList.get(i).get(k));
 			}
 		}
-		
 	}
-	public void DFSsearch(State Thestate)
-	{
+
+	public void DFSsearch(State Thestate) {
 		LinkedList<Node> Frontier = new LinkedList<>();
 		Node node = new Node(null,null,null,null, Thestate, "");
 		Frontier.push(node);
 		DFSsearch(node, Frontier);
 	}
-	private void DFSsearch(Node node, LinkedList<Node> Frontier)
-	{
+
+	private void DFSsearch(Node node, LinkedList<Node> Frontier) {
 		Node currNode = node;
 		while(!Frontier.isEmpty()) {
-			if (dirts.contains(currNode.getState().position)) {
-				dirts.remove(currNode.getState().position);
+			if (dirts.contains(currNode.state.position)) {
+				dirts.remove(currNode.state.position);
 				State Thestate = currNode.state;
 				if (!noDirts)
 					Moves.add("SUCK");
-				while (currNode.getParent() != null) {
-					Moves.add(currNode.getMove());
-					currNode = currNode.getParent();
+				while (currNode.parent != null) {
+					Moves.add(currNode.move);
+					currNode = currNode.parent;
 				}
 
 				if (!dirts.isEmpty()) {
@@ -318,7 +229,8 @@ public class NewAgent implements Agent
 					Moves = new ArrayList<>();
 					hashMap = new HashMap<>();
 					DFSsearch(Thestate);
-				} else {
+				}
+				else {
 					noDirts = true;
 					MyFinalList.add(Moves);
 					Position homePos = new Position(startX, startY);
@@ -329,46 +241,36 @@ public class NewAgent implements Agent
 						DFSsearch(Thestate);
 					}
 				}
-			} else {
+			}
+			else {
 				currNode = Frontier.pop();
-				State S = currNode.getState();
+				State S = currNode.state;
 				Frontier = insertDFS(currNode, S, Frontier);
 			}
 		}
 	}
-	public void DfsCommands()
-	{
-		for (int i = 0; i < MyFinalList.size();i++){
-			for(int k = MyFinalList.get(i).size()-1; k >= 0 ; k--){
-				Commands.add(MyFinalList.get(i).get(k));
-			}
-		}
-	}
 	
-	public void UcSearch(State Thestate)
-	{
+	public void UcSearch(State Thestate) {
 		LinkedList<Node> Frontier = new LinkedList<>();
 		Node node = new Node(null,null,null,null, Thestate, "");
 		Frontier.add(node);
 		UcSearch(node, Frontier);
 	}
 	
-	private void UcSearch(Node node, LinkedList<Node> Frontier)
-	{
+	private void UcSearch(Node node, LinkedList<Node> Frontier) {
 		Node currNode = node;
 		State Thestate = currNode.state;
 		LinkedList<Node> explored = new LinkedList<>();
-		while(!Frontier.isEmpty())
-		{
-			if (dirts.contains(currNode.getState().position)) {
+		while(!Frontier.isEmpty()) {
+			if (dirts.contains(currNode.state.position)) {
 				Thestate = currNode.state;
-				dirts.remove(currNode.getState().position);
+				dirts.remove(currNode.state.position);
 
 				if (!noDirts)
 					Moves.add("SUCK");
-				while (currNode.getParent() != null) {
-					Moves.add(currNode.getMove());
-					currNode = currNode.getParent();
+				while (currNode.parent != null) {
+					Moves.add(currNode.move);
+					currNode = currNode.parent;
 				}
 
 				if (!dirts.isEmpty()) {
@@ -397,7 +299,7 @@ public class NewAgent implements Agent
 			else {
 				explored.add(currNode);
 				currNode = Frontier.poll();
-				State S = currNode.getState();
+				State S = currNode.state;
 				insertUCS(currNode, S, Frontier, explored);
 			}
 		}
@@ -439,9 +341,8 @@ public class NewAgent implements Agent
 			UcsFrontierInsert(Frontier, node.right, explored);
 		}
 
-		hashMap.put(state.hashCode(), node.getState());
-		
-		//	}
+		hashMap.put(state.hashCode(), node.state);
+
 		return Frontier;
 	}
 	
@@ -460,102 +361,7 @@ public class NewAgent implements Agent
 		}
 		return Frontier;
 	}
-	
-	/*
-	public void UcSearch(State Thestate){
-		LinkedList<Node> Frontier = new LinkedList<>();
-		Node node = new Node(null,null,null,null, Thestate, "");
-		Frontier.add(node);
-		UcSearch(Frontier);
-	}
-	
-	private void UcSearch(LinkedList<Node> Frontier){
-		//currNode = node;
-		Position homePos = new Position(startX, startY);
-		LinkedList<Node> explored = new LinkedList<>();
-		
-		while(!Frontier.isEmpty()) {
-			Node currNode = Frontier.remove(Frontier.size()-1);
-			//System.out.println(currNode);
-			System.out.println(currNode.move + " " + currNode.state.position + " " + currNode.cost);
-			
-			if(currNode.state.position.equals(homePos) && dirts.isEmpty()){
-				System.out.println("empty dirts");
-				while (currNode.getParent() != null) {
-					if (dirts.contains(currNode.getState().position)) {
-						Moves.add("SUCK");
-					}
-					System.out.println(currNode.getMove());
-					Moves.add(currNode.getMove());
-					currNode = currNode.getParent();
-				}
-				MyFinalList.add(Moves);
-				break;
-			}
-			
-			if (dirts.contains(currNode.getState().position)) {
-				dirts.remove(currNode.getState().position);
-				currNode.setCost(currNode.getCost()+1);
-			}
-			
-			State currState = currNode.getState();
-			Position goPos = stateGo(currState);
-			
-			
-			
-			if (!obstacles.contains(goPos) && !goPos.equals(currState.position)) {
-				State CenterState = new State(goPos, currState.orientation, true);
-				currNode.center = new Node(null, null, null, currNode, CenterState, "GO");
-			}
-			
-			State RightState = new State(currState.position, stateRight(currState), true);	
-			currNode.right = new Node(null, null, null, currNode, RightState, "TURN_RIGHT");
-			State LeftState = new State(currState.position, stateLeft(currState), true);
-			currNode.left = new Node(null, null, null, currNode, LeftState, "TURN_LEFT");
-			
-			explored.add(currNode);
-			
-			
-			if(!explored.contains(currNode.left)){
-				Frontier = UcsFrontierInsert(Frontier, currNode.left);
-			}
-			
-			if(currNode.center != null){// && !explored.contains(currNode.center)){
-				Frontier = UcsFrontierInsert(Frontier, currNode.center);
-			}
-			
-			if(!explored.contains(currNode.right)){
-				Frontier = UcsFrontierInsert(Frontier, currNode.right);
-			}	
-		}
-		System.out.println("empty frontier");
-	}
-	
-	public LinkedList<Node> UcsFrontierInsert(LinkedList<Node> Frontier, Node n){
-		if(!Frontier.contains(n)){
-			Frontier.add(n);
-		}
-		else{
-			int indx = Frontier.indexOf(n);
-			if(Frontier.get(indx).cost > n.cost){
-				Frontier.set(indx, n);
-			}
-		}
-		return Frontier;
-	}
-	
-	public void UcsCommands(){
-		for (int i = 0; i < MyFinalList.size();i++){
-			for(int k = MyFinalList.get(i).size()-1; k >= 0 ; k--){
-				Commands.add(MyFinalList.get(i).get(k));
-			}
-		}
-	}
-	*/
-	public boolean UcsIsExplored(ArrayList<Node> explored, Node n){
-		return false;
-	}
-	
+
     public void init(Collection<String> percepts) {
 		/*
 			et to turn it on.Possible percepts are:
@@ -581,7 +387,6 @@ public class NewAgent implements Agent
 				}
 				else if(perceptName.equals("ORIENTATION"))
 				{
-					//String or = perceptNameMatcher.group(2);
 					Matcher o = Pattern.compile("\\(\\s*ORIENTATION\\s+([A-Z]+)\\s*\\)").matcher(percept);
 					if (o.matches()) {
 						String word = percept;
@@ -589,22 +394,19 @@ public class NewAgent implements Agent
 						word = word.replace(")", "");
 
 						String[] words = word.split(" ");
-						//System.out.println("Orientation: " + words[1]);
                         direction = words[1];
 					}
 				}
 				else {
 					System.out.println("other percept:" + percept);
 					
-					if(percept.startsWith("(AT DIRT"))
-					{	
+					if(percept.startsWith("(AT DIRT")) {
 						String word = percept;
 						word = word.replace("(", "");
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						//System.out.println("At dirt: " + words[2] + "," + words[3]);
-												
+
 						int xCord = Integer.parseInt(words[2]);
 						int yCord = Integer.parseInt(words[3]);
 						
@@ -612,15 +414,13 @@ public class NewAgent implements Agent
 						
 						dirts.add(dirt);
 					}
-					else if(percept.startsWith("(AT OBSTACLE"))
-					{	
+					else if(percept.startsWith("(AT OBSTACLE")) {
 						String word = percept;
 						word = word.replace("(", "");
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						//System.out.println("At obstacle: " + words[2] + "," + words[3]);
-						
+
 						int xCord = Integer.parseInt(words[2]);
 						int yCord = Integer.parseInt(words[3]);
 						
@@ -628,81 +428,58 @@ public class NewAgent implements Agent
 						
 						obstacles.add(obstacle);
 					}
-					else if(percept.startsWith("(SIZE"))
-					{	
+					else if(percept.startsWith("(SIZE")) {
 						String word = percept;
 						word = word.replace("(", "");
 						word = word.replace(")", "");
 						
 						String[] words = word.split(" ");
-						//System.out.println("Size: " + words[1] + "," + words[2]);
 						maxX = Integer.parseInt(words[1]);
 						maxY = Integer.parseInt(words[2]);
 					}
 				}
-			} else {
+			}
+			else {
 				System.err.println("strange percept that does not match pattern: " + percept);
 			}
 		}
-		initMap(dirts, obstacles, maxX, maxY, startX - 1, startY - 1);
 
-		//"bfs", "dfs", "uniform" or "A"
-		TypeOfSearch("uniform");
-
-
+		TypeOfSearch(TYPEOFSEARCH);
 
 		Commands.add(0, "TURN_ON");
 		Commands.add(Commands.size(), "TURN_OFF");
     }
 
-    public void TypeOfSearch(String search)
-	{
+    public void TypeOfSearch(String search) {
 		Position pos = new Position(startX, startY);
 		State state = new State(pos, Orientation.valueOf(direction), true);
-		if (search == "bfs") {
+		if (search.equals("bfs")) {
 			BFSsearch(state);
-			BfsCommands();
+			ConvertToCommands();
 		}
-		else if (search == "dfs") {
+		else if (search.equals("dfs")) {
 			DFSsearch(state);
-			DfsCommands();
+			ConvertToCommands();
 		}
-		else if (search == "uniform") {
+		else if (search.equals("uniform")) {
 			UcSearch(state);
-			DfsCommands();
-		}
-		else if (search == "A") {
-
+			ConvertToCommands();
 		}
 		else
 			System.err.println(search + " is not a valid search.");
-		
 	}
 
     public String nextAction(Collection<String> percepts) {
-		String per = "";
-
 		System.out.print("perceiving:");
 		for(String percept:percepts) {
 			System.out.print("'" + percept + "', ");
-			per = percept;
 		}
+
 		System.out.println("");
-		String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
 		System.out.println(Commands);
 		String Action = Commands.remove(0);
         System.out.println(Action);
-        if (Action.equals("TURN_ON"))
-            return actions[0];
-        else if (Action.equals("TURN_RIGHT"))
-            return actions[2];
-        else if (Action.equals("TURN_LEFT"))
-            return actions[3];
-        else if (Action.equals("GO"))
-            return actions[4];
-        else if (Action.equals("SUCK"))
-            return actions[5];
-        else
-			return actions[1];
+
+        return Action;
 	}
 }
