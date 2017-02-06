@@ -189,9 +189,9 @@ public class NewAgent implements Agent
 
 	public void BFSsearch(State Thestate)
 	{
-		root = new Node(null,null,null,null, Thestate, "");
-		Frontier.add(root);
-        BFSsearch(root);
+		Node node = new Node(null,null,null,null, Thestate, "");
+		Frontier.add(node);
+        BFSsearch(node);
 	}
 
 	private void BFSsearch(Node node)
@@ -208,7 +208,6 @@ public class NewAgent implements Agent
 
 			dirts.remove(node.getState().position);
 			State Thestate = node.state;
-			Node temp = new Node(null,null,null,null, Thestate, "");
             if(!noDirts)
 				BFSMoves.add("SUCK");
             while(node.getParent() != null)
@@ -226,20 +225,18 @@ public class NewAgent implements Agent
 				BFSMoves = new ArrayList<>();
 				Frontier = new LinkedList<>();
 				hashMap = new HashMap<>();
-				Frontier.add(temp);
-            	BFSsearch(temp);
+            	BFSsearch(Thestate);
             }
             else {
 				noDirts = true;
 				MyFinalList.add(BFSMoves);
 					Position homePos = new Position(startX, startY);
-					if (!homePos.equals(temp.getState().position)) {
+					if (!homePos.equals(Thestate.position)) {
 						dirts.add(homePos);
 						BFSMoves = new ArrayList<>();
 						Frontier = new LinkedList<>();
 						hashMap = new HashMap<>();
-						Frontier.add(temp);
-						BFSsearch(temp);
+						BFSsearch(Thestate);
 				}
 			}
         }
@@ -377,7 +374,7 @@ public class NewAgent implements Agent
 		String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
 
 		System.out.println(Commands);
-        String Action = Commands.remove(0);
+		String Action = Commands.remove(0);
         System.out.println(Action);
         if (Action.equals("TURN_ON"))
             return actions[0];
