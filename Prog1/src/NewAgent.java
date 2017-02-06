@@ -25,6 +25,7 @@ public class NewAgent implements Agent
 	private ArrayList<String> Commands = new ArrayList<>();
 	private ArrayList<ArrayList<String>> MyFinalList = new ArrayList<>();
 	private boolean noDirts = false;
+	private Node currNode;
 	/*
 		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
 	*/
@@ -196,40 +197,35 @@ public class NewAgent implements Agent
 
 	private void BFSsearch(Node node)
 	{
-		if(Frontier.isEmpty())
-        {
-             return;
-        }
-		if(dirts.contains(node.getState().position))
+		currNode = node;
+		while(!Frontier.isEmpty())
 		{
-			System.out.println("Node State: " + node.getState().position);
-			System.out.println("Dirts pos: "  + dirts);
-			System.out.println("Obstacles pos: "  + obstacles);
+			if (dirts.contains(currNode.getState().position)) {
+				System.out.println("Node State: " + currNode.getState().position);
+				System.out.println("Dirts pos: " + dirts);
+				System.out.println("Obstacles pos: " + obstacles);
 
-			dirts.remove(node.getState().position);
-			State Thestate = node.state;
-            if(!noDirts)
-				BFSMoves.add("SUCK");
-            while(node.getParent() != null)
-            {
-                BFSMoves.add(node.getMove());
-                System.out.println("Adding move: " + node.getMove() + " to BFSMoves");
-                node = node.getParent();
-            }
-            node = null;
+				dirts.remove(currNode.getState().position);
+				State Thestate = currNode.state;
+				if (!noDirts)
+					BFSMoves.add("SUCK");
+				while (currNode.getParent() != null) {
+					BFSMoves.add(currNode.getMove());
+					System.out.println("Adding move: " + currNode.getMove() + " to BFSMoves");
+					currNode = currNode.getParent();
+				}
+				currNode = null;
 
-            if(!dirts.isEmpty())
-            {
-				Frontier = Frontier;
-				MyFinalList.add(BFSMoves);
-				BFSMoves = new ArrayList<>();
-				Frontier = new LinkedList<>();
-				hashMap = new HashMap<>();
-            	BFSsearch(Thestate);
-            }
-            else {
-				noDirts = true;
-				MyFinalList.add(BFSMoves);
+				if (!dirts.isEmpty()) {
+					Frontier = Frontier;
+					MyFinalList.add(BFSMoves);
+					BFSMoves = new ArrayList<>();
+					Frontier = new LinkedList<>();
+					hashMap = new HashMap<>();
+					BFSsearch(Thestate);
+				} else {
+					noDirts = true;
+					MyFinalList.add(BFSMoves);
 					Position homePos = new Position(startX, startY);
 					if (!homePos.equals(Thestate.position)) {
 						dirts.add(homePos);
@@ -237,24 +233,17 @@ public class NewAgent implements Agent
 						Frontier = new LinkedList<>();
 						hashMap = new HashMap<>();
 						BFSsearch(Thestate);
+					}
+					else
+						break;
 				}
 			}
-        }
-		else {
-			Node N = Frontier.poll();
-            State S = N.getState();
-			while(hashMap.containsValue(S) && !Frontier.isEmpty()){
-				if (Frontier.isEmpty())
-					return;
-				else{
-					N = Frontier.poll();
-					S = N.getState();
-					break;
-				}
+			else {
+				currNode = Frontier.poll();
+				State S = currNode.getState();
+				insert(currNode, S);
 			}
-			insert(N, S);
-			BFSsearch(N);
-			}
+		}
 	}
 
     public void init(Collection<String> percepts) {
