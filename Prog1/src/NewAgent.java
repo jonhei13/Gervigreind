@@ -172,15 +172,14 @@ public class NewAgent implements Agent
 				State CenterState = new State(pos, state.orientation, true);
 					node.center = new Node(null, null, null, node, CenterState, "GO");
 					Frontier.add(node.center);
-			}
-			else{
-				State LeftState = new State(state.position, stateLeft(state), true);
-				State RightState = new State(state.position, stateRight(state), true);
-				node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
-				node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
+            }
+            State LeftState = new State(state.position, stateLeft(state), true);
+            State RightState = new State(state.position, stateRight(state), true);
+            node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
+            node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
 
-				Frontier.add(node.left);
-				Frontier.add(node.right);
+            Frontier.add(node.left);
+            Frontier.add(node.right);
 			}
 
 			hashMap.put(state.hashCode(), node.getState());
