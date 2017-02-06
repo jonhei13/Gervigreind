@@ -290,6 +290,7 @@ public class NewAgent implements Agent
 				Commands.add(MyFinalList.get(i).get(k));
 			}
 		}
+		
 	}
 	public void DFSsearch(State Thestate)
 	{
@@ -344,6 +345,123 @@ public class NewAgent implements Agent
 		}
 	}
 	
+	public void UcSearch(State Thestate)
+	{
+		LinkedList<Node> Frontier = new LinkedList<>();
+		Node node = new Node(null,null,null,null, Thestate, "");
+		Frontier.add(node);
+		UcSearch(node, Frontier);
+	}
+	
+	private void UcSearch(Node node, LinkedList<Node> Frontier)
+	{
+		Node currNode = node;
+		State Thestate = currNode.state;
+		LinkedList<Node> explored = new LinkedList<>();
+		while(!Frontier.isEmpty())
+		{
+			if (dirts.contains(currNode.getState().position)) {
+				Thestate = currNode.state;
+				dirts.remove(currNode.getState().position);
+
+				if (!noDirts)
+					Moves.add("SUCK");
+				while (currNode.getParent() != null) {
+					Moves.add(currNode.getMove());
+					currNode = currNode.getParent();
+				}
+
+				if (!dirts.isEmpty()) {
+					MyFinalList.add(Moves);
+					Moves = new ArrayList<>();
+					hashMap = new HashMap<>();
+					UcSearch(Thestate);
+				}
+				else if(dirts.isEmpty() && !noDirts){
+					noDirts = true;
+					MyFinalList.add(Moves);
+					Position homePos = new Position(startX, startY);
+					if (!homePos.equals(Thestate.position)) {
+						dirts.add(homePos);
+						Moves = new ArrayList<>();
+						hashMap = new HashMap<>();
+						UcSearch(Thestate);
+					}
+				}
+				else if(dirts.isEmpty() && noDirts){
+					MyFinalList.add(Moves);
+					break;
+				}
+				break;
+			}
+			else {
+				explored.add(currNode);
+				currNode = Frontier.poll();
+				State S = currNode.getState();
+				insertUCS(currNode, S, Frontier, explored);
+			}
+		}
+		if(Frontier.isEmpty()) {
+			noDirts = true;
+			MyFinalList.add(Moves);
+			dirts = new ArrayList<>();
+			Position homePos = new Position(startX, startY);
+			if (!homePos.equals(Thestate.position)) {
+				dirts.add(homePos);
+				Moves = new ArrayList<>();
+				hashMap = new HashMap<>();
+				UcSearch(Thestate);
+			}
+		}
+	}
+	
+	private Queue<Node> insertUCS(Node node, State state, LinkedList<Node> Frontier, LinkedList<Node> explored) {
+		Position pos = stateGo(state);
+		if (!hashMap.containsValue(state)) {
+			if (!obstacles.contains(pos)) {
+				State CenterState = new State(pos, state.orientation, true);
+				node.center = new Node(null, null, null, node, CenterState, "GO");
+				UcsFrontierInsert(Frontier, node.center, explored);
+			}
+			State LeftState = new State(state.position, stateLeft(state), true);
+			State RightState = new State(state.position, stateRight(state), true);
+			node.right = new Node(null, null, null, node, RightState, "TURN_RIGHT");
+			node.left = new Node(null, null, null, node, LeftState, "TURN_LEFT");
+
+			UcsFrontierInsert(Frontier, node.left, explored);
+			
+			if (!obstacles.contains(pos)) {
+				State CenterState = new State(pos, state.orientation, true);
+				node.center = new Node(null, null, null, node, CenterState, "GO");
+				UcsFrontierInsert(Frontier, node.center, explored);
+			}
+			
+			UcsFrontierInsert(Frontier, node.right, explored);
+		}
+
+		hashMap.put(state.hashCode(), node.getState());
+		
+		//	}
+		return Frontier;
+	}
+	
+	public LinkedList<Node> UcsFrontierInsert(LinkedList<Node> Frontier, Node n, LinkedList<Node> explored){
+		if(explored.contains(n)){
+			return Frontier;
+		}
+		if(!Frontier.contains(n)){
+			Frontier.add(n);
+		}
+		else{
+			int indx = Frontier.indexOf(n);
+			if(Frontier.get(indx).cost > n.cost){
+				Frontier.set(indx, n);
+			}
+		}
+		return Frontier;
+	}
+	
+	/*
 	public void UcSearch(State Thestate){
 		LinkedList<Node> Frontier = new LinkedList<>();
 		Node node = new Node(null,null,null,null, Thestate, "");
@@ -433,7 +551,7 @@ public class NewAgent implements Agent
 			}
 		}
 	}
-	
+	*/
 	public boolean UcsIsExplored(ArrayList<Node> explored, Node n){
 		return false;
 	}
@@ -529,7 +647,7 @@ public class NewAgent implements Agent
 		initMap(dirts, obstacles, maxX, maxY, startX - 1, startY - 1);
 
 		//"bfs", "dfs", "uniform" or "A"
-		TypeOfSearch("bfs");
+		TypeOfSearch("uniform");
 
 
 
@@ -551,17 +669,17 @@ public class NewAgent implements Agent
 		}
 		else if (search == "uniform") {
 			UcSearch(state);
-			UcsCommands();
+			DfsCommands();
 		}
 		else if (search == "A") {
 
 		}
 		else
 			System.err.println(search + " is not a valid search.");
+		
 	}
 
     public String nextAction(Collection<String> percepts) {
-
 		String per = "";
 
 		System.out.print("perceiving:");
@@ -571,7 +689,6 @@ public class NewAgent implements Agent
 		}
 		System.out.println("");
 		String[] actions = { "TURN_ON", "TURN_OFF", "TURN_RIGHT", "TURN_LEFT", "GO", "SUCK" };
-
 		System.out.println(Commands);
 		String Action = Commands.remove(0);
         System.out.println(Action);
